@@ -232,6 +232,7 @@
             Controls.Add(label2);
             Controls.Add(label1);
             Font = new Font("Times New Roman", 15.75F, FontStyle.Regular, GraphicsUnit.Point);
+            Icon = (Icon)resources.GetObject("$this.Icon");
             Margin = new Padding(5);
             Name = "MainGenSP";
             StartPosition = FormStartPosition.CenterParent;

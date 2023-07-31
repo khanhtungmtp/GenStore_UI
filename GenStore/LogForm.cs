@@ -52,7 +52,7 @@ namespace GenStore
             logMessages.Clear();
         }
 
-          public void ClearLog()
+        public void ClearLog()
         {
             // Clear the log messages
             logMessages.Clear();
@@ -60,7 +60,11 @@ namespace GenStore
 
         private void LogForm_Load(object sender, EventArgs e)
         {
-            CenterToScreen();
+            // Lấy kích thước màn hình của hiển thị form
+            Rectangle screenSize = Screen.FromControl(this).Bounds;
+            // Thiết lập kích thước form phù hợp với màn hình
+            this.Size = new Size(screenSize.Width, screenSize.Height);
+            // CenterToScreen();
         }
 
         private void LogForm_FormClosed(object sender, FormClosedEventArgs e)

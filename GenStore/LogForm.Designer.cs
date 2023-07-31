@@ -30,37 +30,29 @@
         {
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(LogForm));
             lstLog = new ListBox();
-            label1 = new Label();
             SuspendLayout();
             // 
             // lstLog
             // 
-            lstLog.FormattingEnabled = true;
             resources.ApplyResources(lstLog, "lstLog");
+            lstLog.FormattingEnabled = true;
             lstLog.Name = "lstLog";
             lstLog.SelectedIndexChanged += lstLog_SelectedIndexChanged;
-            // 
-            // label1
-            // 
-            resources.ApplyResources(label1, "label1");
-            label1.Name = "label1";
             // 
             // LogForm
             // 
             resources.ApplyResources(this, "$this");
             AutoScaleMode = AutoScaleMode.Font;
-            Controls.Add(label1);
             Controls.Add(lstLog);
             Name = "LogForm";
+            WindowState = FormWindowState.Maximized;
             FormClosed += LogForm_FormClosed;
             Load += LogForm_Load;
             ResumeLayout(false);
-            PerformLayout();
         }
 
         #endregion
 
         private ListBox lstLog;
-        private Label label1;
     }
 }

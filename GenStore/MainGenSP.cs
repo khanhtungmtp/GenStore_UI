@@ -140,14 +140,11 @@ namespace GenStore
             // Stop the stopwatch after the method is completed
             stopwatch.Stop();
             // Show the execution time in the MessageBox
-            string executionTime = stopwatch.Elapsed.ToString();
-            MessageBox.Show($"Execution Time: {executionTime}", "Success", MessageBoxButtons.OK, MessageBoxIcon.Information);
-        }
-
-        private void LogForm_Closing(object sender, FormClosingEventArgs e)
-        {
-            // Clear the log messages when the form is closing
-            logForm.ClearLog();
+            if (SpList.Count > 0)
+            {
+                string executionTime = stopwatch.Elapsed.ToString();
+                MessageBox.Show($"Thoi gian xu ly: {executionTime}", "Success", MessageBoxButtons.OK, MessageBoxIcon.Information);
+            }
         }
 
         private void GenSPScan(string connectionString, string schema, string namespaceValue, string contextValue, string sFolderValue, string fFolderValue, string filenameValue)
@@ -176,7 +173,10 @@ namespace GenStore
             if (string.IsNullOrEmpty(filenameValue))
             {
                 string currentTime = DateTime.Now.ToString("yyyyMMddHHmmss");
-                filenameValue = $"Result_{currentTime}.cs";
+                if (schema == "+")
+                    filenameValue = $"ResultAll_{currentTime}.cs";
+                else
+                    filenameValue = $"ResultSingle_{currentTime}.cs";
             }
             P_ConnectionString = connectionString;
             P_NameSpace = namespaceValue;
@@ -211,7 +211,7 @@ namespace GenStore
                 }
                 else
                 {
-                    // Call GenSPScan method with the provided parameters
+                    // get 1 store
                     HandleGenSPScan();
                 }
             }
@@ -336,18 +336,9 @@ namespace GenStore
             // Log the final message using logForm.AddLogMessage instead of AddLogMessage
             logForm.AddLogMessage($"{DateTime.Now.ToString("yyyy-MM-dd HH':'mm':'ss")} XONG");
 
-            // Display a MessageBox to notify the user about success
-           // MessageBox.Show($"{DateTime.Now.ToString("yyyy-MM-dd HH':'mm':'ss")} XONG", "Success", MessageBoxButtons.OK, MessageBoxIcon.Information);
-           
             GenSPT4 genSPT4Processed = new GenSPT4(SpList, P_NameSpace, P_OutPutSolutionFolder, P_ContextSource);
 
             File.WriteAllText(Path.Combine(P_OutPutPhysicalFolder, P_OutPutFilename), genSPT4Processed.TransformText());
-
-            //if (ExceptionList.Count > 0)
-            //{
-            //    // Display the exceptions in the log form and write them to the log file
-            //    logForm.DisplayExceptions(ExceptionList, P_OutPutPhysicalFolder);
-            //}
 
             if (ExceptionList.Count > 0)
             {
@@ -549,7 +540,7 @@ namespace GenStore
         }
 
         private void MainGenSP_Load(object sender, EventArgs e)
-        {
+        {            
             CenterToScreen();
         }
     }
