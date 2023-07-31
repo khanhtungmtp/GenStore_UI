@@ -33,6 +33,18 @@ namespace GenStore
         {
             InitializeComponent();
             logForm = new LogForm(); // Initialize the log form
+            logForm.FormClosing += LogForm_FormClosing;
+        }
+
+        private void LogForm_FormClosing(object sender, FormClosingEventArgs e)
+        {
+            // When the LogForm is closing, cancel the event to prevent it from being disposed.
+            // Instead, just hide the form to keep it accessible for further use.
+            if (e.CloseReason == CloseReason.UserClosing)
+            {
+                e.Cancel = true;
+                logForm.Hide();
+            }
         }
 
         public MainGenSP(string p_Schema, string p_ConnectionString, string p_NameSpace, string p_ContextSource, bool p_ExcludeSystemObject, string p_OutPutSolutionFolder, string p_OutPutPhysicalFolder, string p_OutPutFilename, List<Sp> spList, List<SpException> exceptionList, IContainer components, Label label1, Label label2, PictureBox pictureBox1, RichTextBox ricktxtConStr, Label label3, TextBox txtNamespace, TextBox txtContext, Label label4, TextBox txtEntityPath, Label label5, TextBox txtSchema, Label label6, TextBox txtPathOutput, Label label7, TextBox txtNameFileOutPut, Label label8, Button btnStartGen)
@@ -112,10 +124,16 @@ namespace GenStore
             string fFolderValue = txtPathOutput.Text;
             string filenameValue = txtNameFileOutPut.Text;
             string schema = txtSchema.Text;
-            // Show the log form
-            logForm.Show();
+
+            // Show the existing logForm if it's hidden
+            if (!logForm.Visible)
+            {
+                logForm.Show();
+            }
+
             // Call GenSPScan function with user inputs
             GenSPScan(connectionString, schema, namespaceValue, contextValue, sFolderValue, fFolderValue, filenameValue);
+ 
         }
 
         private void GenSPScan(string connectionString, string schema, string namespaceValue, string contextValue, string sFolderValue, string fFolderValue, string filenameValue)
@@ -146,6 +164,14 @@ namespace GenStore
                 string currentTime = DateTime.Now.ToString("yyyyMMddHHmmss");
                 filenameValue = $"Result_{currentTime}.cs";
             }
+            P_ConnectionString = connectionString;
+            P_NameSpace = namespaceValue;
+            P_Schema = schema;
+            P_ContextSource = contextValue;
+            P_OutPutSolutionFolder = sFolderValue;
+            P_OutPutPhysicalFolder = fFolderValue;
+            P_OutPutFilename = filenameValue;
+
 
             if (!string.IsNullOrEmpty(connectionString) &&
                 !string.IsNullOrEmpty(namespaceValue) &&
