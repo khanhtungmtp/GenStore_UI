@@ -91,6 +91,7 @@
             ricktxtConStr.Size = new Size(570, 62);
             ricktxtConStr.TabIndex = 4;
             ricktxtConStr.Text = "";
+            ricktxtConStr.TextChanged += ricktxtConStr_TextChanged_1;
             // 
             // label3
             // 
@@ -235,6 +236,7 @@
             Name = "MainGenSP";
             StartPosition = FormStartPosition.CenterParent;
             Text = "Gen Store Procedure";
+            Load += MainGenSP_Load;
             ((System.ComponentModel.ISupportInitialize)pictureBox1).EndInit();
             ResumeLayout(false);
             PerformLayout();

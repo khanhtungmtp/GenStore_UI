@@ -7,6 +7,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
 using System.Data.SqlClient;
+using System.Diagnostics;
 using System.Drawing;
 using System.Linq;
 using System.Text;
@@ -32,19 +33,15 @@ namespace GenStore
         public MainGenSP()
         {
             InitializeComponent();
-            logForm = new LogForm(); // Initialize the log form
-            logForm.FormClosing += LogForm_FormClosing;
+            logForm = new LogForm();
         }
 
         private void LogForm_FormClosing(object sender, FormClosingEventArgs e)
         {
-            // When the LogForm is closing, cancel the event to prevent it from being disposed.
-            // Instead, just hide the form to keep it accessible for further use.
-            if (e.CloseReason == CloseReason.UserClosing)
-            {
-                e.Cancel = true;
-                logForm.Hide();
-            }
+            // Clear the log messages when the form is closing
+            logForm.ClearLog();
+            e.Cancel = true; // Prevent the form from closing
+
         }
 
         public MainGenSP(string p_Schema, string p_ConnectionString, string p_NameSpace, string p_ContextSource, bool p_ExcludeSystemObject, string p_OutPutSolutionFolder, string p_OutPutPhysicalFolder, string p_OutPutFilename, List<Sp> spList, List<SpException> exceptionList, IContainer components, Label label1, Label label2, PictureBox pictureBox1, RichTextBox ricktxtConStr, Label label3, TextBox txtNamespace, TextBox txtContext, Label label4, TextBox txtEntityPath, Label label5, TextBox txtSchema, Label label6, TextBox txtPathOutput, Label label7, TextBox txtNameFileOutPut, Label label8, Button btnStartGen)
@@ -116,6 +113,8 @@ namespace GenStore
 
         private void btnStartGen_Click(object sender, EventArgs e)
         {
+            SpList.Clear();
+            ExceptionList.Clear();
             // Get user inputs from textboxes
             string connectionString = ricktxtConStr.Text;
             string namespaceValue = txtNamespace.Text;
@@ -125,15 +124,30 @@ namespace GenStore
             string filenameValue = txtNameFileOutPut.Text;
             string schema = txtSchema.Text;
 
-            // Show the existing logForm if it's hidden
-            if (!logForm.Visible)
+            if (logForm == null || logForm.IsDisposed)
             {
-                logForm.Show();
+                logForm = new LogForm();
+                logForm.FormClosing += LogForm_FormClosing; // Attach the FormClosing event handler
             }
 
+            logForm.Show();
+
+            // Measure the execution time using Stopwatch
+            Stopwatch stopwatch = new Stopwatch();
+            stopwatch.Start();
             // Call GenSPScan function with user inputs
             GenSPScan(connectionString, schema, namespaceValue, contextValue, sFolderValue, fFolderValue, filenameValue);
- 
+            // Stop the stopwatch after the method is completed
+            stopwatch.Stop();
+            // Show the execution time in the MessageBox
+            string executionTime = stopwatch.Elapsed.ToString();
+            MessageBox.Show($"Execution Time: {executionTime}", "Success", MessageBoxButtons.OK, MessageBoxIcon.Information);
+        }
+
+        private void LogForm_Closing(object sender, FormClosingEventArgs e)
+        {
+            // Clear the log messages when the form is closing
+            logForm.ClearLog();
         }
 
         private void GenSPScan(string connectionString, string schema, string namespaceValue, string contextValue, string sFolderValue, string fFolderValue, string filenameValue)
@@ -192,8 +206,7 @@ namespace GenStore
                 }
                 else if (schema == "+")
                 {
-                    P_Schema = "+"; // Set the schema to "*" to get all stored procedures
-                                    // Call GenSPScan method with the provided parameters
+                    P_Schema = "+"; // Set the schema to "+" to get all stored procedures
                     HandleGenSPScan();
                 }
                 else
@@ -235,7 +248,6 @@ namespace GenStore
 
             foreach (DataRow r in dt_SpList.Rows)
             {
-
                 _schema = r["ROUTINE_SCHEMA"].ToString();
                 _sp = r["ROUTINE_NAME"].ToString();
 
@@ -325,17 +337,23 @@ namespace GenStore
             logForm.AddLogMessage($"{DateTime.Now.ToString("yyyy-MM-dd HH':'mm':'ss")} XONG");
 
             // Display a MessageBox to notify the user about success
-            MessageBox.Show($"{DateTime.Now.ToString("yyyy-MM-dd HH':'mm':'ss")} XONG", "Success", MessageBoxButtons.OK, MessageBoxIcon.Information);
+           // MessageBox.Show($"{DateTime.Now.ToString("yyyy-MM-dd HH':'mm':'ss")} XONG", "Success", MessageBoxButtons.OK, MessageBoxIcon.Information);
+           
             GenSPT4 genSPT4Processed = new GenSPT4(SpList, P_NameSpace, P_OutPutSolutionFolder, P_ContextSource);
 
             File.WriteAllText(Path.Combine(P_OutPutPhysicalFolder, P_OutPutFilename), genSPT4Processed.TransformText());
 
+            //if (ExceptionList.Count > 0)
+            //{
+            //    // Display the exceptions in the log form and write them to the log file
+            //    logForm.DisplayExceptions(ExceptionList, P_OutPutPhysicalFolder);
+            //}
+
             if (ExceptionList.Count > 0)
             {
-                // Display the exceptions in the log form and write them to the log file
-                logForm.DisplayExceptions(ExceptionList, P_OutPutPhysicalFolder);
+                logForm.AddLogMessage($"{DateTime.Now.ToString("yyyy-MM-dd HH':'mm':'ss")} Da tim thay exception! Vui long check o file GenSP_log.txt in '{P_OutPutPhysicalFolder}'");
+                WriteException();
             }
-
 
         }
 
@@ -367,7 +385,6 @@ namespace GenStore
             else
                 throw new UnknownDBTypeException(type);
         }
-
 
         private string SP_GetDbType(string type)
         {
@@ -508,7 +525,7 @@ namespace GenStore
             {
                 foreach (var e in ExceptionList)
                 {
-                    logForm.AddLogMessage($"{DateTime.Now.ToString("yyyy-MM-dd HH':'mm':'ss")} - EXCEPTION {i} / {ExceptionList.Count}: {e.StoreProcedure} - {e.Message}");
+                    sb.AppendLine($"{DateTime.Now.ToString("yyyy-MM-dd HH':'mm':'ss")} - EXCEPTION {i} / {ExceptionList.Count}: {e.StoreProcedure} - {e.Message}");
                     i++;
                 }
                 File.WriteAllText(Path.Combine(P_OutPutPhysicalFolder, "GenSP_log.txt"), sb.ToString());
@@ -519,13 +536,21 @@ namespace GenStore
             }
         }
 
-       
+
 
         private void ricktxtConStr_TextChanged(object sender, EventArgs e)
         {
 
         }
 
+        private void ricktxtConStr_TextChanged_1(object sender, EventArgs e)
+        {
 
+        }
+
+        private void MainGenSP_Load(object sender, EventArgs e)
+        {
+            CenterToScreen();
+        }
     }
 }

@@ -13,9 +13,32 @@ namespace GenStore
 {
     public partial class LogForm : Form
     {
+        private BindingList<string> logMessages = new BindingList<string>();
+
         public LogForm()
         {
             InitializeComponent();
+            lstLog.DataSource = logMessages;
+        }
+
+        public void AddLogMessage(string message)
+        {
+            // Add the log message to the BindingList
+            logMessages.Add(message);
+            // Scroll to the last item in the ListBox
+            lstLog.SelectedIndex = logMessages.Count - 1;
+        }
+
+        // Override the FormClosing event to prevent the form from closing when the "OK" button in the MessageBox is clicked
+        protected override void OnFormClosing(FormClosingEventArgs e)
+        {
+            base.OnFormClosing(e);
+            if (e.CloseReason == CloseReason.UserClosing)
+            {
+                logMessages.Clear();
+                e.Cancel = true; // Set the Cancel property to true to prevent the form from closing
+                Hide(); // Hide the form instead of closing it
+            }
         }
 
         private void lstLog_SelectedIndexChanged(object sender, EventArgs e)
@@ -23,30 +46,27 @@ namespace GenStore
 
         }
 
-        public void AddLogMessage(string logMessage)
+        private void LogForm_FormClosing(object sender, FormClosingEventArgs e)
         {
-            lstLog.Items.Add(logMessage);
-            lstLog.TopIndex = lstLog.Items.Count - 1;
+            // Clear the log messages when the form is closing
+            logMessages.Clear();
         }
 
-        public void DisplayExceptions(List<SpException> exceptionList, string outputPhysicalFolder)
+          public void ClearLog()
         {
-            StringBuilder sb = new StringBuilder();
-
-            int i = 1;
-            foreach (var e in exceptionList)
-            {
-                sb.AppendLine($"{DateTime.Now.ToString("yyyy-MM-dd HH':'mm':'ss")} - EXCEPTION {i} / {exceptionList.Count}: {e.StoreProcedure} - {e.Message}");
-                i++;
-            }
-
-            // Display the log messages in the ListBox
-            AddLogMessage(sb.ToString());
-
-            // Write the exceptions to the log file
-            string logFilePath = Path.Combine(outputPhysicalFolder, "GenSP_log.txt");
-            File.WriteAllText(logFilePath, sb.ToString());
+            // Clear the log messages
+            logMessages.Clear();
         }
 
+        private void LogForm_Load(object sender, EventArgs e)
+        {
+            CenterToScreen();
+        }
+
+        private void LogForm_FormClosed(object sender, FormClosedEventArgs e)
+        {
+            // Clear the log messages when the form is closing
+            logMessages.Clear();
+        }
     }
 }

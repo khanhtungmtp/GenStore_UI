@@ -28,6 +28,7 @@
         /// </summary>
         private void InitializeComponent()
         {
+            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(LogForm));
             lstLog = new ListBox();
             label1 = new Label();
             SuspendLayout();
@@ -35,32 +36,24 @@
             // lstLog
             // 
             lstLog.FormattingEnabled = true;
-            lstLog.ItemHeight = 15;
-            lstLog.Location = new Point(0, 56);
+            resources.ApplyResources(lstLog, "lstLog");
             lstLog.Name = "lstLog";
-            lstLog.Size = new Size(799, 394);
-            lstLog.TabIndex = 0;
             lstLog.SelectedIndexChanged += lstLog_SelectedIndexChanged;
             // 
             // label1
             // 
-            label1.AutoSize = true;
-            label1.Font = new Font("Times New Roman", 20.25F, FontStyle.Regular, GraphicsUnit.Point);
-            label1.Location = new Point(317, 9);
+            resources.ApplyResources(label1, "label1");
             label1.Name = "label1";
-            label1.Size = new Size(158, 31);
-            label1.TabIndex = 1;
-            label1.Text = "GenStore log";
             // 
             // LogForm
             // 
-            AutoScaleDimensions = new SizeF(7F, 15F);
+            resources.ApplyResources(this, "$this");
             AutoScaleMode = AutoScaleMode.Font;
-            ClientSize = new Size(800, 450);
             Controls.Add(label1);
             Controls.Add(lstLog);
             Name = "LogForm";
-            Text = "LogForm";
+            FormClosed += LogForm_FormClosed;
+            Load += LogForm_Load;
             ResumeLayout(false);
             PerformLayout();
         }
