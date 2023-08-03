@@ -72,8 +72,7 @@ namespace GenStore
 
         private void btnStartGen_Click(object sender, EventArgs e)
         {
-            SpList.Clear();
-            ExceptionList.Clear();
+            logForm.ClearLog();
             // Get user inputs from textboxes
             string nameConnectionString = txtNameConnectionString.Text.Trim();
             string namespaceValue = txtNamespace.Text.Trim();
@@ -165,7 +164,7 @@ namespace GenStore
 
                 if (string.IsNullOrEmpty(schema))
                 {
-                    logForm.AddLogMessage("GenSP - ERROR: Parameter Missing: schema");
+                    logForm.AddLogMessage("ERROR: Parameter Missing: schema");
                 }
                 else if (schema == "+")
                 {
@@ -181,10 +180,10 @@ namespace GenStore
             else
             {
                 // Output the missing parameters if any
-                logForm.AddLogMessage("GenSP - ERROR:");
+                logForm.AddLogMessage("ERROR:");
                 if (string.IsNullOrEmpty(connectionString))
                 {
-                    logForm.AddLogMessage("Parameter Missing: connection");
+                    logForm.AddLogMessage("Parameter Missing or incorrect: Name connection string");
                 }
             }
         }
@@ -227,8 +226,19 @@ namespace GenStore
             try
             {
                 // Doc noi dung tu appsettings.json
-                string jsonContent = File.ReadAllText("appsettings.json");
+                string appSettingsFilePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "appsettings.json");
+                if (!File.Exists(appSettingsFilePath))
+                {
+                    logForm.AddLogMessage("appsettings.json file not found.");
+                    return null; // or return a default connection string
+                }
 
+                string jsonContent = File.ReadAllText(appSettingsFilePath);
+                if (string.IsNullOrEmpty(jsonContent))
+                {
+                    logForm.AddLogMessage("appsettings.json file is empty.");
+                    return null; // or return a default connection string
+                }
                 // Parse JSON using JToken
                 JToken jsonToken = JToken.Parse(jsonContent);
 
@@ -422,9 +432,9 @@ namespace GenStore
                 using (SqlConnection connection = new SqlConnection(P_ConnectionString))
                 {
                     string sql = @"
-                SELECT * 
-                  FROM INFORMATION_SCHEMA.ROUTINES
-                 WHERE ROUTINE_TYPE = 'PROCEDURE'";
+                                SELECT * 
+                                  FROM INFORMATION_SCHEMA.ROUTINES
+                                 WHERE ROUTINE_TYPE = 'PROCEDURE'";
 
                     // Kiem tra neu nguoi dung khong nhap ten procedure hoac nhap + thi lay tat ca
                     if (!string.IsNullOrEmpty(P_Schema) && !P_Schema.Equals("+"))
