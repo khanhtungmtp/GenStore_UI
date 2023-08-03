@@ -1,19 +1,12 @@
 ﻿using GenStore.Helpers;
 using GenStore.Models;
 using GenStore.T4;
-using System;
-using System.Collections;
-using System.Collections.Generic;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 using System.ComponentModel;
 using System.Data;
 using System.Data.SqlClient;
-using System.Diagnostics;
-using System.Drawing;
-using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
-using System.Windows.Forms;
-using System.Xml.Linq;
 
 namespace GenStore
 {
@@ -44,7 +37,7 @@ namespace GenStore
 
         }
 
-        public MainGenSP(string p_Schema, string p_ConnectionString, string p_NameSpace, string p_ContextSource, bool p_ExcludeSystemObject, string p_OutPutSolutionFolder, string p_OutPutPhysicalFolder, string p_OutPutFilename, List<Sp> spList, List<SpException> exceptionList, IContainer components, Label label1, Label label2, PictureBox pictureBox1, RichTextBox ricktxtConStr, Label label3, TextBox txtNamespace, TextBox txtContext, Label label4, TextBox txtEntityPath, Label label5, TextBox txtSchema, Label label6, TextBox txtPathOutput, Label label7, TextBox txtNameFileOutPut, Label label8, Button btnStartGen)
+        public MainGenSP(string p_Schema, string p_ConnectionString, string p_NameSpace, string p_ContextSource, bool p_ExcludeSystemObject, string p_OutPutSolutionFolder, string p_OutPutPhysicalFolder, string p_OutPutFilename, List<Sp> spList, List<SpException> exceptionList, LogForm logForm, IContainer components, Label label1, Label label2, PictureBox pictureBox1, Label label3, TextBox txtNamespace, TextBox txtContext, Label label4, TextBox txtEntityPath, Label label5, TextBox txtSchema, Label label6, TextBox txtPathOutput, Label label7, TextBox txtNameFileOutPut, Label label8, Button btnStartGen, TextBox txtNameConnectionString)
         {
             P_Schema = p_Schema;
             P_ConnectionString = p_ConnectionString;
@@ -56,11 +49,11 @@ namespace GenStore
             P_OutPutFilename = p_OutPutFilename;
             SpList = spList;
             ExceptionList = exceptionList;
+            this.logForm = logForm;
             this.components = components;
             this.label1 = label1;
-            this.label2 = label2;
+            this.lbNameConnectionString = label2;
             this.pictureBox1 = pictureBox1;
-            this.ricktxtConStr = ricktxtConStr;
             this.label3 = label3;
             this.txtNamespace = txtNamespace;
             this.txtContext = txtContext;
@@ -74,41 +67,7 @@ namespace GenStore
             this.txtNameFileOutPut = txtNameFileOutPut;
             this.label8 = label8;
             this.btnStartGen = btnStartGen;
-        }
-
-        private void label1_Click(object sender, EventArgs e)
-        {
-
-        }
-
-        private void pictureBox1_Click(object sender, EventArgs e)
-        {
-
-        }
-
-        private void label3_Click(object sender, EventArgs e)
-        {
-
-        }
-
-        private void label2_Click(object sender, EventArgs e)
-        {
-
-        }
-
-        private void txtNamespace_Enter(object sender, EventArgs e)
-        {
-
-        }
-
-        private void txtNamespace_Leave(object sender, EventArgs e)
-        {
-
-        }
-
-        private void txtNamespace_TextChanged(object sender, EventArgs e)
-        {
-
+            this.txtNameConnectionString = txtNameConnectionString;
         }
 
         private void btnStartGen_Click(object sender, EventArgs e)
@@ -116,13 +75,13 @@ namespace GenStore
             SpList.Clear();
             ExceptionList.Clear();
             // Get user inputs from textboxes
-            string connectionString = ricktxtConStr.Text;
-            string namespaceValue = txtNamespace.Text;
-            string contextValue = txtContext.Text;
-            string sFolderValue = txtEntityPath.Text;
-            string fFolderValue = txtPathOutput.Text;
-            string filenameValue = txtNameFileOutPut.Text;
-            string schema = txtSchema.Text;
+            string nameConnectionString = txtNameConnectionString.Text.Trim();
+            string namespaceValue = txtNamespace.Text.Trim();
+            string contextValue = txtContext.Text.Trim();
+            string sFolderValue = txtEntityPath.Text.Trim();
+            string fFolderValue = txtPathOutput.Text.Trim();
+            string filenameValue = txtNameFileOutPut.Text.Trim();
+            string schema = txtSchema.Text.Trim();
 
             if (logForm == null || logForm.IsDisposed)
             {
@@ -132,22 +91,24 @@ namespace GenStore
 
             logForm.Show();
 
-            // Measure the execution time using Stopwatch
-            Stopwatch stopwatch = new Stopwatch();
-            stopwatch.Start();
+            DateTime startTime = DateTime.Now;
+
             // Call GenSPScan function with user inputs
-            GenSPScan(connectionString, schema, namespaceValue, contextValue, sFolderValue, fFolderValue, filenameValue);
-            // Stop the stopwatch after the method is completed
-            stopwatch.Stop();
+            GenSPScan(nameConnectionString, schema, namespaceValue, contextValue, sFolderValue, fFolderValue, filenameValue);
+            // Stop the time after the method is completed
+            DateTime endTime = DateTime.Now;
+            // Calculate the time taken for the scaffold process
+            TimeSpan duration = endTime - startTime;
+            // Chuyển đổi duration sang mili giây
+            long milliseconds = (long)duration.TotalMilliseconds;
             // Show the execution time in the MessageBox
             if (SpList.Count > 0)
             {
-                string executionTime = stopwatch.Elapsed.ToString();
-                MessageBox.Show($"Thoi gian xu ly: {executionTime}", "Success", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                MessageBox.Show($"Thời gian xử lý: {milliseconds} ms", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Information);
             }
         }
 
-        private void GenSPScan(string connectionString, string schema, string namespaceValue, string contextValue, string sFolderValue, string fFolderValue, string filenameValue)
+        private void GenSPScan(string nameConnectionString, string schema, string namespaceValue, string contextValue, string sFolderValue, string fFolderValue, string filenameValue)
         {
             // Set default values for empty parameters
             if (string.IsNullOrEmpty(namespaceValue))
@@ -178,6 +139,9 @@ namespace GenStore
                 else
                     filenameValue = $"ResultSingle_{currentTime}.cs";
             }
+
+            // Doc chuoi ket noi tu appsettings json dua tren ten chuoi ket noi
+            string connectionString = GetConnectionString(nameConnectionString);
             P_ConnectionString = connectionString;
             P_NameSpace = namespaceValue;
             P_Schema = schema;
@@ -185,7 +149,6 @@ namespace GenStore
             P_OutPutSolutionFolder = sFolderValue;
             P_OutPutPhysicalFolder = fFolderValue;
             P_OutPutFilename = filenameValue;
-
 
             if (!string.IsNullOrEmpty(connectionString) &&
                 !string.IsNullOrEmpty(namespaceValue) &&
@@ -226,19 +189,75 @@ namespace GenStore
             }
         }
 
+        private string FindConnectionStringRecursive(JToken token, string connectionName)
+        {
+            if (token.Type == JTokenType.Object)
+            {
+                foreach (var property in token.Children<JProperty>())
+                {
+                    if (property.Name == connectionName)
+                    {
+                        return property.Value.ToString();
+                    }
+
+                    var result = FindConnectionStringRecursive(property.Value, connectionName);
+                    if (result != null)
+                    {
+                        return result;
+                    }
+                }
+            }
+            else if (token.Type == JTokenType.Array)
+            {
+                foreach (var item in token.Children())
+                {
+                    var result = FindConnectionStringRecursive(item, connectionName);
+                    if (result != null)
+                    {
+                        return result;
+                    }
+                }
+            }
+
+            return null;
+        }
+
+        private string GetConnectionString(string connectionName)
+        {
+            try
+            {
+                // Doc noi dung tu appsettings.json
+                string jsonContent = File.ReadAllText("appsettings.json");
+
+                // Parse JSON using JToken
+                JToken jsonToken = JToken.Parse(jsonContent);
+
+                // Find the connection string by connectionName recursively
+                string connectionString = FindConnectionStringRecursive(jsonToken, connectionName);
+
+                if (connectionString != null)
+                {
+                    return connectionString;
+                }
+            }
+            catch (JsonReaderException ex)
+            {
+                logForm.AddLogMessage($"JSON parsing error: {ex.Message}");
+            }
+
+            return null;
+        }
+
         public void HandleGenSPScan()
         {
-
             var dt_SpList = new DataTable();
             var dt_SpParam = new DataTable();
             var dt_SpResult = new DataTable();
 
-            // Log a message using logForm.AddLogMessage instead of AddLogMessage
             logForm.AddLogMessage($"{DateTime.Now.ToString("yyyy-MM-dd HH':'mm':'ss")} STEP 1 - QUET STORED PROCEDURE");
 
             dt_SpList = Get_StoreProcedure_List();
 
-            // Log a message using logForm.AddLogMessage instead of AddLogMessage
             logForm.AddLogMessage($"{DateTime.Now.ToString("yyyy-MM-dd HH':'mm':'ss")} STEP 2 - BAT DAU LAY STORED PROCEDURE");
             logForm.AddLogMessage($"{DateTime.Now.ToString("yyyy-MM-dd HH':'mm':'ss")} STEP 2 - Total Stored Procedure: {dt_SpList.Rows.Count}");
 
@@ -254,15 +273,12 @@ namespace GenStore
                 dt_SpParam = Get_StoreProcedure_Param(_schema, _sp);
                 dt_SpResult = Get_StoreProcedure_Result(_schema, _sp);
 
-                // Log a message using logForm.AddLogMessage instead of AddLogMessage
                 logForm.AddLogMessage($"{DateTime.Now.ToString("yyyy-MM-dd HH':'mm':'ss")} STEP 2 - {i} / {dt_SpList.Rows.Count} ==> \"{r["ROUTINE_NAME"]}\"");
                 var pList = new List<SpParam>();
                 foreach (DataRow par in dt_SpParam.Rows)
                 {
-
                     var _p = new SpParam()
                     {
-
                         Param = par["Parameter"].ToString().Replace("@", ""),
                         Type = SP_GetType(par["Type"].ToString(), (bool)par["is_nullable"]),
                         Length = (par["Length"].GetType().Name == "DBNull" ? null : par["Length"].ToString()),
@@ -273,7 +289,6 @@ namespace GenStore
                         isNullable = (bool)par["is_nullable"],
                         Collation = (par["Collation"].GetType().Name == "DBNull" ? null : par["Collation"].ToString()),
                         DbType = SP_GetDbType(par["Type"].ToString()),
-
                         sql_Param = (par["Parameter"].GetType().Name == "DBNull" ? null : par["Parameter"].ToString()),
                         sql_Type = (par["Type"].GetType().Name == "DBNull" ? null : par["Type"].ToString()),
                         sql_Length = (par["Length"].GetType().Name == "DBNull" ? null : par["Length"].ToString()),
@@ -292,10 +307,8 @@ namespace GenStore
                 int rCounter = 0;
                 foreach (DataRow res in dt_SpResult.Rows)
                 {
-
                     var _r = new SpResultElement()
                     {
-
                         Name = (string.IsNullOrEmpty(res["name"].ToString()) ? $"Col{rCounter}" : res["name"].ToString()),
                         Type = SP_GetType(res["system_type_name"].ToString(), (bool)res["is_nullable"]),
                         Length = (res["max_length"].GetType().Name == "DBNull" ? null : res["max_length"].ToString()),
@@ -304,7 +317,6 @@ namespace GenStore
                         Order = (res["column_ordinal"].GetType().Name == "DBNull" ? null : res["column_ordinal"].ToString()),
                         isNullable = (bool)res["is_nullable"],
                         Collation = (res["collation_name"].GetType().Name == "DBNull" ? null : res["collation_name"].ToString()),
-
                         sql_Name = (res["name"].GetType().Name == "DBNull" ? null : res["name"].ToString()),
                         sql_Type = (res["system_type_name"].GetType().Name == "DBNull" ? null : res["system_type_name"].ToString()),
                         sql_Length = (res["max_length"].GetType().Name == "DBNull" ? null : res["max_length"].ToString()),
@@ -315,7 +327,6 @@ namespace GenStore
                         sql_Collation = (res["collation_name"].GetType().Name == "DBNull" ? null : res["collation_name"].ToString()),
 
                     };
-
 
                     rList.Add(_r);
                 }
@@ -333,7 +344,6 @@ namespace GenStore
                 i++;
             }
 
-            // Log the final message using logForm.AddLogMessage instead of AddLogMessage
             logForm.AddLogMessage($"{DateTime.Now.ToString("yyyy-MM-dd HH':'mm':'ss")} XONG");
 
             GenSPT4 genSPT4Processed = new GenSPT4(SpList, P_NameSpace, P_OutPutSolutionFolder, P_ContextSource);
@@ -348,10 +358,8 @@ namespace GenStore
 
         }
 
-
         private string SP_GetType(string type, bool isNullable)
         {
-            // chuyen doi kieu du lieu dau vao thanh chu thuong va loai bo khoang trang o dau va cuoi chuoi
             type = type.ToLower().Trim();
 
             // kiem tra kieu du lieu trong sql server va tra ve kieu du lieu tuong ung trong c#
@@ -379,7 +387,6 @@ namespace GenStore
 
         private string SP_GetDbType(string type)
         {
-            // Convert the input type to lowercase and remove leading/trailing spaces
             type = type.ToLower().Trim();
 
             // Check the SQL Server data type and return the corresponding C# data type
@@ -414,13 +421,26 @@ namespace GenStore
             {
                 using (SqlConnection connection = new SqlConnection(P_ConnectionString))
                 {
-                    string sql = $@"
-                        SELECT * 
-                          FROM INFORMATION_SCHEMA.ROUTINES
-                         WHERE ROUTINE_TYPE = 'PROCEDURE' "
-                                          + (P_ExcludeSystemObject ? " AND LEFT(ROUTINE_NAME, 3) NOT IN ('sp_', 'xp_', 'ms_')" : "")
-                                          + (P_Schema != "+" ? $"AND ROUTINE_NAME =  '{P_Schema}'" : "") + // Modify the condition for "*" schema
-                                        " ORDER BY ROUTINE_NAME";
+                    string sql = @"
+                SELECT * 
+                  FROM INFORMATION_SCHEMA.ROUTINES
+                 WHERE ROUTINE_TYPE = 'PROCEDURE'";
+
+                    // Kiem tra neu nguoi dung khong nhap ten procedure hoac nhap + thi lay tat ca
+                    if (!string.IsNullOrEmpty(P_Schema) && !P_Schema.Equals("+"))
+                    {
+                        // Chia cac ten procedure boi dau phay va tao danh sach tham so trong cau truy van
+                        string[] procedureNames = P_Schema.Split(',');
+                        string procedureFilter = string.Join(",", procedureNames.Select(p => $"'{p.Trim()}'"));
+                        sql += $" AND ROUTINE_NAME IN ({procedureFilter})";
+                    }
+
+                    if (P_ExcludeSystemObject)
+                    {
+                        sql += " AND LEFT(ROUTINE_NAME, 3) NOT IN ('sp_', 'xp_', 'ms_')";
+                    }
+
+                    sql += " ORDER BY ROUTINE_NAME";
 
                     SqlDataAdapter adapter = new SqlDataAdapter();
                     adapter.SelectCommand = new SqlCommand(sql, connection);
@@ -431,7 +451,6 @@ namespace GenStore
             }
             catch (Exception e)
             {
-
                 ExceptionList.Add(new SpException() { Method = "Get_StoreProcedure_List", Message = e.Message });
 
                 return dtResult;
@@ -474,9 +493,7 @@ namespace GenStore
             }
             catch (Exception e)
             {
-
                 ExceptionList.Add(new SpException() { Method = "Get_StoreProcedure_Param", FullName = $"{schema}.{sp}", Schema = schema, StoreProcedure = sp, Message = e.Message });
-
                 return dtResult;
             }
         }
@@ -500,9 +517,7 @@ namespace GenStore
             }
             catch (Exception e)
             {
-
                 ExceptionList.Add(new SpException() { Method = "Get_StoreProcedure_Result", FullName = $"{schema}.{sp}", Schema = schema, StoreProcedure = sp, Message = e.Message });
-
                 return dtResult;
             }
         }
@@ -527,20 +542,8 @@ namespace GenStore
             }
         }
 
-
-
-        private void ricktxtConStr_TextChanged(object sender, EventArgs e)
-        {
-
-        }
-
-        private void ricktxtConStr_TextChanged_1(object sender, EventArgs e)
-        {
-
-        }
-
         private void MainGenSP_Load(object sender, EventArgs e)
-        {            
+        {
             CenterToScreen();
         }
     }

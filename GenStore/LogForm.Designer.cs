@@ -29,23 +29,21 @@
         private void InitializeComponent()
         {
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(LogForm));
-            lstLog = new ListBox();
+            richTextBoxLog = new RichTextBox();
             SuspendLayout();
             // 
-            // lstLog
+            // richTextBoxLog
             // 
-            resources.ApplyResources(lstLog, "lstLog");
-            lstLog.FormattingEnabled = true;
-            lstLog.Name = "lstLog";
-            lstLog.SelectedIndexChanged += lstLog_SelectedIndexChanged;
+            resources.ApplyResources(richTextBoxLog, "richTextBoxLog");
+            richTextBoxLog.Name = "richTextBoxLog";
+            richTextBoxLog.ReadOnly = true;
             // 
             // LogForm
             // 
             resources.ApplyResources(this, "$this");
             AutoScaleMode = AutoScaleMode.Font;
-            Controls.Add(lstLog);
+            Controls.Add(richTextBoxLog);
             Name = "LogForm";
-            WindowState = FormWindowState.Maximized;
             FormClosed += LogForm_FormClosed;
             Load += LogForm_Load;
             ResumeLayout(false);
@@ -53,6 +51,6 @@
 
         #endregion
 
-        private ListBox lstLog;
+        private RichTextBox richTextBoxLog;
     }
 }

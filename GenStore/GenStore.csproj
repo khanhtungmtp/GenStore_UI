@@ -9,6 +9,7 @@
 	  <FileVersion>1.0</FileVersion>
 	  <Authors>KhanhTungMTP</Authors>
 	  <Description>Gen Stored Procedure Scaffolder for .netcore !!!</Description>
+	  <SelfContained>true</SelfContained>
 	  <ApplicationIcon>icon.ico</ApplicationIcon>
 	  <IncludeNativeLibrariesForSelfExtract>true</IncludeNativeLibrariesForSelfExtract>
   </PropertyGroup>
@@ -43,6 +44,7 @@
     <PackageReference Include="Fody" Version="6.8.0">
       <PrivateAssets>all</PrivateAssets>
 	</PackageReference>
+    <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
     <PackageReference Include="System.Data.SqlClient" Version="4.8.5" />
   </ItemGroup>
 
