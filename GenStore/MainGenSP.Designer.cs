@@ -45,15 +45,22 @@
             txtNameFileOutPut = new TextBox();
             label8 = new Label();
             btnStartGen = new Button();
-            txtNameConnectionString = new TextBox();
+            tabConnection = new TabControl();
+            tabMain = new TabPage();
+            comboBoxConnectionStrings = new ComboBox();
+            tabLog = new TabPage();
+            richTextBoxLog = new RichTextBox();
             ((System.ComponentModel.ISupportInitialize)pictureBox1).BeginInit();
+            tabConnection.SuspendLayout();
+            tabMain.SuspendLayout();
+            tabLog.SuspendLayout();
             SuspendLayout();
             // 
             // label1
             // 
             label1.AutoSize = true;
             label1.Font = new Font("Times New Roman", 20.25F, FontStyle.Regular, GraphicsUnit.Point);
-            label1.Location = new Point(283, 18);
+            label1.Location = new Point(247, 9);
             label1.Margin = new Padding(5, 0, 5, 0);
             label1.Name = "label1";
             label1.Size = new Size(242, 31);
@@ -63,7 +70,7 @@
             // lbNameConnectionString
             // 
             lbNameConnectionString.AutoSize = true;
-            lbNameConnectionString.Location = new Point(6, 184);
+            lbNameConnectionString.Location = new Point(2, 12);
             lbNameConnectionString.Margin = new Padding(5, 0, 5, 0);
             lbNameConnectionString.Name = "lbNameConnectionString";
             lbNameConnectionString.Size = new Size(244, 23);
@@ -73,7 +80,7 @@
             // pictureBox1
             // 
             pictureBox1.Image = (Image)resources.GetObject("pictureBox1.Image");
-            pictureBox1.Location = new Point(348, 52);
+            pictureBox1.Location = new Point(312, 43);
             pictureBox1.Name = "pictureBox1";
             pictureBox1.Size = new Size(104, 82);
             pictureBox1.SizeMode = PictureBoxSizeMode.StretchImage;
@@ -83,7 +90,7 @@
             // label3
             // 
             label3.AutoSize = true;
-            label3.Location = new Point(4, 365);
+            label3.Location = new Point(0, 193);
             label3.Margin = new Padding(5, 0, 5, 0);
             label3.Name = "label3";
             label3.Size = new Size(228, 23);
@@ -92,22 +99,22 @@
             // 
             // txtNamespace
             // 
-            txtNamespace.Location = new Point(276, 362);
+            txtNamespace.Location = new Point(272, 190);
             txtNamespace.Name = "txtNamespace";
-            txtNamespace.Size = new Size(496, 32);
+            txtNamespace.Size = new Size(450, 32);
             txtNamespace.TabIndex = 10;
             // 
             // txtContext
             // 
-            txtContext.Location = new Point(276, 409);
+            txtContext.Location = new Point(272, 237);
             txtContext.Name = "txtContext";
-            txtContext.Size = new Size(496, 32);
+            txtContext.Size = new Size(450, 32);
             txtContext.TabIndex = 12;
             // 
             // label4
             // 
             label4.AutoSize = true;
-            label4.Location = new Point(4, 412);
+            label4.Location = new Point(0, 240);
             label4.Margin = new Padding(5, 0, 5, 0);
             label4.Name = "label4";
             label4.Size = new Size(264, 23);
@@ -116,15 +123,15 @@
             // 
             // txtEntityPath
             // 
-            txtEntityPath.Location = new Point(276, 456);
+            txtEntityPath.Location = new Point(272, 284);
             txtEntityPath.Name = "txtEntityPath";
-            txtEntityPath.Size = new Size(496, 32);
+            txtEntityPath.Size = new Size(450, 32);
             txtEntityPath.TabIndex = 14;
             // 
             // label5
             // 
             label5.AutoSize = true;
-            label5.Location = new Point(4, 459);
+            label5.Location = new Point(0, 287);
             label5.Margin = new Padding(5, 0, 5, 0);
             label5.Name = "label5";
             label5.Size = new Size(255, 23);
@@ -133,32 +140,33 @@
             // 
             // txtSchema
             // 
-            txtSchema.Location = new Point(276, 228);
+            txtSchema.Location = new Point(272, 56);
             txtSchema.Name = "txtSchema";
-            txtSchema.Size = new Size(496, 32);
+            txtSchema.PlaceholderText = "nameStore";
+            txtSchema.Size = new Size(450, 32);
             txtSchema.TabIndex = 4;
             // 
             // label6
             // 
             label6.AutoSize = true;
-            label6.Location = new Point(4, 231);
+            label6.Location = new Point(0, 59);
             label6.Margin = new Padding(5, 0, 5, 0);
             label6.Name = "label6";
-            label6.Size = new Size(260, 23);
+            label6.Size = new Size(222, 23);
             label6.TabIndex = 3;
-            label6.Text = "Schema (+ or Name Store) (*)";
+            label6.Text = "Schema (GetAll if empty)";
             // 
             // txtPathOutput
             // 
-            txtPathOutput.Location = new Point(276, 274);
+            txtPathOutput.Location = new Point(272, 102);
             txtPathOutput.Name = "txtPathOutput";
-            txtPathOutput.Size = new Size(496, 32);
+            txtPathOutput.Size = new Size(450, 32);
             txtPathOutput.TabIndex = 6;
             // 
             // label7
             // 
             label7.AutoSize = true;
-            label7.Location = new Point(4, 277);
+            label7.Location = new Point(0, 105);
             label7.Margin = new Padding(5, 0, 5, 0);
             label7.Name = "label7";
             label7.Size = new Size(245, 23);
@@ -167,15 +175,15 @@
             // 
             // txtNameFileOutPut
             // 
-            txtNameFileOutPut.Location = new Point(276, 319);
+            txtNameFileOutPut.Location = new Point(272, 147);
             txtNameFileOutPut.Name = "txtNameFileOutPut";
-            txtNameFileOutPut.Size = new Size(496, 32);
+            txtNameFileOutPut.Size = new Size(450, 32);
             txtNameFileOutPut.TabIndex = 8;
             // 
             // label8
             // 
             label8.AutoSize = true;
-            label8.Location = new Point(4, 322);
+            label8.Location = new Point(0, 150);
             label8.Margin = new Padding(5, 0, 5, 0);
             label8.Name = "label8";
             label8.Size = new Size(247, 23);
@@ -184,7 +192,7 @@
             // 
             // btnStartGen
             // 
-            btnStartGen.Location = new Point(348, 510);
+            btnStartGen.Location = new Point(308, 323);
             btnStartGen.Name = "btnStartGen";
             btnStartGen.Size = new Size(132, 39);
             btnStartGen.TabIndex = 15;
@@ -192,43 +200,91 @@
             btnStartGen.UseVisualStyleBackColor = true;
             btnStartGen.Click += btnStartGen_Click;
             // 
-            // txtNameConnectionString
+            // tabConnection
             // 
-            txtNameConnectionString.Location = new Point(276, 181);
-            txtNameConnectionString.Name = "txtNameConnectionString";
-            txtNameConnectionString.Size = new Size(496, 32);
-            txtNameConnectionString.TabIndex = 2;
+            tabConnection.Controls.Add(tabMain);
+            tabConnection.Controls.Add(tabLog);
+            tabConnection.Location = new Point(0, 135);
+            tabConnection.Name = "tabConnection";
+            tabConnection.SelectedIndex = 0;
+            tabConnection.Size = new Size(741, 406);
+            tabConnection.TabIndex = 16;
+            // 
+            // tabMain
+            // 
+            tabMain.Controls.Add(comboBoxConnectionStrings);
+            tabMain.Controls.Add(lbNameConnectionString);
+            tabMain.Controls.Add(label3);
+            tabMain.Controls.Add(btnStartGen);
+            tabMain.Controls.Add(txtNamespace);
+            tabMain.Controls.Add(txtNameFileOutPut);
+            tabMain.Controls.Add(label4);
+            tabMain.Controls.Add(label8);
+            tabMain.Controls.Add(txtContext);
+            tabMain.Controls.Add(txtPathOutput);
+            tabMain.Controls.Add(label5);
+            tabMain.Controls.Add(label7);
+            tabMain.Controls.Add(txtEntityPath);
+            tabMain.Controls.Add(txtSchema);
+            tabMain.Controls.Add(label6);
+            tabMain.Location = new Point(4, 32);
+            tabMain.Name = "tabMain";
+            tabMain.Padding = new Padding(3);
+            tabMain.Size = new Size(733, 370);
+            tabMain.TabIndex = 0;
+            tabMain.Text = "Connection";
+            tabMain.UseVisualStyleBackColor = true;
+            // 
+            // comboBoxConnectionStrings
+            // 
+            comboBoxConnectionStrings.FormattingEnabled = true;
+            comboBoxConnectionStrings.Location = new Point(272, 9);
+            comboBoxConnectionStrings.Name = "comboBoxConnectionStrings";
+            comboBoxConnectionStrings.Size = new Size(450, 31);
+            comboBoxConnectionStrings.TabIndex = 16;
+            comboBoxConnectionStrings.SelectedIndexChanged += comboBoxConnectionStrings_SelectedIndexChanged;
+            // 
+            // tabLog
+            // 
+            tabLog.Controls.Add(richTextBoxLog);
+            tabLog.Location = new Point(4, 24);
+            tabLog.Name = "tabLog";
+            tabLog.Padding = new Padding(3);
+            tabLog.Size = new Size(733, 378);
+            tabLog.TabIndex = 1;
+            tabLog.Text = "Log";
+            tabLog.UseVisualStyleBackColor = true;
+            // 
+            // richTextBoxLog
+            // 
+            richTextBoxLog.Font = new Font("Times New Roman", 12F, FontStyle.Regular, GraphicsUnit.Point);
+            richTextBoxLog.Location = new Point(-2, 0);
+            richTextBoxLog.Name = "richTextBoxLog";
+            richTextBoxLog.Size = new Size(735, 371);
+            richTextBoxLog.TabIndex = 0;
+            richTextBoxLog.Text = "";
             // 
             // MainGenSP
             // 
             AutoScaleDimensions = new SizeF(12F, 23F);
             AutoScaleMode = AutoScaleMode.Font;
-            ClientSize = new Size(784, 571);
-            Controls.Add(txtNameConnectionString);
-            Controls.Add(btnStartGen);
-            Controls.Add(txtNameFileOutPut);
-            Controls.Add(label8);
-            Controls.Add(txtPathOutput);
-            Controls.Add(label7);
-            Controls.Add(txtSchema);
-            Controls.Add(label6);
-            Controls.Add(txtEntityPath);
-            Controls.Add(label5);
-            Controls.Add(txtContext);
-            Controls.Add(label4);
-            Controls.Add(txtNamespace);
-            Controls.Add(label3);
+            ClientSize = new Size(739, 538);
+            Controls.Add(tabConnection);
             Controls.Add(pictureBox1);
-            Controls.Add(lbNameConnectionString);
             Controls.Add(label1);
             Font = new Font("Times New Roman", 15.75F, FontStyle.Regular, GraphicsUnit.Point);
             Icon = (Icon)resources.GetObject("$this.Icon");
             Margin = new Padding(5);
+            MaximizeBox = false;
             Name = "MainGenSP";
             StartPosition = FormStartPosition.CenterParent;
             Text = "Gen Store Procedure";
             Load += MainGenSP_Load;
             ((System.ComponentModel.ISupportInitialize)pictureBox1).EndInit();
+            tabConnection.ResumeLayout(false);
+            tabMain.ResumeLayout(false);
+            tabMain.PerformLayout();
+            tabLog.ResumeLayout(false);
             ResumeLayout(false);
             PerformLayout();
         }
@@ -251,6 +307,10 @@
         private TextBox txtNameFileOutPut;
         private Label label8;
         private Button btnStartGen;
-        private TextBox txtNameConnectionString;
+        private TabControl tabConnection;
+        private TabPage tabMain;
+        private TabPage tabLog;
+        private RichTextBox richTextBoxLog;
+        private ComboBox comboBoxConnectionStrings;
     }
 }

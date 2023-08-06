@@ -1,9 +1,10 @@
 ﻿using GenStore.Helpers;
 using GenStore.Models;
 using GenStore.T4;
+using Microsoft.Extensions.Configuration;
+using System.Configuration;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
-using System.ComponentModel;
 using System.Data;
 using System.Data.SqlClient;
 using System.Text;
@@ -22,59 +23,67 @@ namespace GenStore
         public string P_OutPutFilename;
         public List<Sp> SpList = new List<Sp>();
         public List<SpException> ExceptionList = new List<SpException>();
-        private LogForm logForm;
+        // log
+        private readonly StringBuilder logBuilder = new StringBuilder();
+        private object logLock = new object();
+        private const int MAX_LOG_BUFFER_SIZE = 5000;
+        // load json
+        private IConfigurationRoot? configuration;
+        private List<ConnectionStringSettings>? connectionStrings;
         public MainGenSP()
         {
             InitializeComponent();
-            logForm = new LogForm();
+            LoadConnect();
         }
 
-        private void LogForm_FormClosing(object sender, FormClosingEventArgs e)
+        private void LoadConnect()
         {
-            // Clear the log messages when the form is closing
-            logForm.ClearLog();
-            e.Cancel = true; // Prevent the form from closing
+            try
+            {
+                // Load configuration from appsettings.json
+                var configBuilder = new ConfigurationBuilder()
+                    .AddJsonFile(Path.Combine(Directory.GetCurrentDirectory(), "appsettings.json"), optional: false, reloadOnChange: true);
+                configuration = configBuilder.Build();
 
+                // Initialize the connectionStrings list
+                connectionStrings = new List<ConnectionStringSettings>();
+
+                // Read connection strings from appsettings.json and populate the list
+                var connectionStringsSection = configuration.GetSection("ConnectionStrings");
+                foreach (var connectionStringSection in connectionStringsSection.GetChildren())
+                {
+                    var name = connectionStringSection.Key;
+                    var connectionString = connectionStringSection.Value;
+                    connectionStrings.Add(new ConnectionStringSettings { Name = name, ConnectionString = connectionString });
+                }
+            }
+            catch (Exception ex)
+            {
+                AddLogMessage($"Error loading configuration: {ex.Message}");
+            }
         }
 
-        public MainGenSP(string p_Schema, string p_ConnectionString, string p_NameSpace, string p_ContextSource, bool p_ExcludeSystemObject, string p_OutPutSolutionFolder, string p_OutPutPhysicalFolder, string p_OutPutFilename, List<Sp> spList, List<SpException> exceptionList, LogForm logForm, IContainer components, Label label1, Label label2, PictureBox pictureBox1, Label label3, TextBox txtNamespace, TextBox txtContext, Label label4, TextBox txtEntityPath, Label label5, TextBox txtSchema, Label label6, TextBox txtPathOutput, Label label7, TextBox txtNameFileOutPut, Label label8, Button btnStartGen, TextBox txtNameConnectionString)
-        {
-            P_Schema = p_Schema;
-            P_ConnectionString = p_ConnectionString;
-            P_NameSpace = p_NameSpace;
-            P_ContextSource = p_ContextSource;
-            P_ExcludeSystemObject = p_ExcludeSystemObject;
-            P_OutPutSolutionFolder = p_OutPutSolutionFolder;
-            P_OutPutPhysicalFolder = p_OutPutPhysicalFolder;
-            P_OutPutFilename = p_OutPutFilename;
-            SpList = spList;
-            ExceptionList = exceptionList;
-            this.logForm = logForm;
-            this.components = components;
-            this.label1 = label1;
-            this.lbNameConnectionString = label2;
-            this.pictureBox1 = pictureBox1;
-            this.label3 = label3;
-            this.txtNamespace = txtNamespace;
-            this.txtContext = txtContext;
-            this.label4 = label4;
-            this.txtEntityPath = txtEntityPath;
-            this.label5 = label5;
-            this.txtSchema = txtSchema;
-            this.label6 = label6;
-            this.txtPathOutput = txtPathOutput;
-            this.label7 = label7;
-            this.txtNameFileOutPut = txtNameFileOutPut;
-            this.label8 = label8;
-            this.btnStartGen = btnStartGen;
-            this.txtNameConnectionString = txtNameConnectionString;
-        }
 
         private void btnStartGen_Click(object sender, EventArgs e)
         {
-            logForm.ClearLog();
+            ClearLog();
+            // active tablog
+            tabConnection.SelectedTab = tabLog;
             // Get user inputs from textboxes
-            string nameConnectionString = txtNameConnectionString.Text.Trim();
+            string? selectedConnectionStringName = comboBoxConnectionStrings.SelectedItem?.ToString();
+            if (string.IsNullOrEmpty(selectedConnectionStringName))
+            {
+                MessageBox.Show("Vui lòng chọn một kết nối.", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                return;
+            }
+            // active tablog
+            tabConnection.SelectedTab = tabLog;
+            string nameConnectionString = "";
+            var selectedConnectionString = connectionStrings?.Find(cs => cs?.Name == selectedConnectionStringName) ?? null;
+            if (selectedConnectionString != null)
+            {
+                nameConnectionString = selectedConnectionString.Name;
+            }
             string namespaceValue = txtNamespace.Text.Trim();
             string contextValue = txtContext.Text.Trim();
             string sFolderValue = txtEntityPath.Text.Trim();
@@ -82,13 +91,6 @@ namespace GenStore
             string filenameValue = txtNameFileOutPut.Text.Trim();
             string schema = txtSchema.Text.Trim();
 
-            if (logForm == null || logForm.IsDisposed)
-            {
-                logForm = new LogForm();
-                logForm.FormClosing += LogForm_FormClosing; // Attach the FormClosing event handler
-            }
-
-            logForm.Show();
 
             DateTime startTime = DateTime.Now;
 
@@ -99,16 +101,17 @@ namespace GenStore
             // Calculate the time taken for the scaffold process
             TimeSpan duration = endTime - startTime;
             // Chuyển đổi duration sang mili giây
-            long milliseconds = (long)duration.TotalMilliseconds;
+            long seconds = (long)duration.TotalSeconds;
             // Show the execution time in the MessageBox
             if (SpList.Count > 0)
             {
-                MessageBox.Show($"Thời gian xử lý: {milliseconds} ms", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                MessageBox.Show($"Thời gian xử lý: {seconds}s", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Information);
             }
         }
 
         private void GenSPScan(string nameConnectionString, string schema, string namespaceValue, string contextValue, string sFolderValue, string fFolderValue, string filenameValue)
         {
+
             // Set default values for empty parameters
             if (string.IsNullOrEmpty(namespaceValue))
             {
@@ -133,7 +136,7 @@ namespace GenStore
             if (string.IsNullOrEmpty(filenameValue))
             {
                 string currentTime = DateTime.Now.ToString("yyyyMMddHHmmss");
-                if (schema == "+")
+                if (schema == "")
                     filenameValue = $"ResultAll_{currentTime}.cs";
                 else
                     filenameValue = $"ResultSingle_{currentTime}.cs";
@@ -162,11 +165,7 @@ namespace GenStore
                     Directory.CreateDirectory(fFolderValue);
                 }
 
-                if (string.IsNullOrEmpty(schema))
-                {
-                    logForm.AddLogMessage("ERROR: Parameter Missing: schema");
-                }
-                else if (schema == "+")
+                else if (schema == "")
                 {
                     P_Schema = "+"; // Set the schema to "+" to get all stored procedures
                     HandleGenSPScan();
@@ -180,10 +179,10 @@ namespace GenStore
             else
             {
                 // Output the missing parameters if any
-                logForm.AddLogMessage("ERROR:");
+                AddLogMessage("ERROR:");
                 if (string.IsNullOrEmpty(connectionString))
                 {
-                    logForm.AddLogMessage("Parameter Missing or incorrect: Name connection string");
+                    AddLogMessage("Parameter Missing or incorrect: Name connection string");
                 }
             }
         }
@@ -229,14 +228,14 @@ namespace GenStore
                 string appSettingsFilePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "appsettings.json");
                 if (!File.Exists(appSettingsFilePath))
                 {
-                    logForm.AddLogMessage("appsettings.json file not found.");
+                    AddLogMessage("appsettings.json file not found.");
                     return null; // or return a default connection string
                 }
 
                 string jsonContent = File.ReadAllText(appSettingsFilePath);
                 if (string.IsNullOrEmpty(jsonContent))
                 {
-                    logForm.AddLogMessage("appsettings.json file is empty.");
+                    AddLogMessage("appsettings.json file is empty.");
                     return null; // or return a default connection string
                 }
                 // Parse JSON using JToken
@@ -252,7 +251,7 @@ namespace GenStore
             }
             catch (JsonReaderException ex)
             {
-                logForm.AddLogMessage($"JSON parsing error: {ex.Message}");
+                AddLogMessage($"JSON parsing error: {ex.Message}");
             }
 
             return null;
@@ -264,12 +263,12 @@ namespace GenStore
             var dt_SpParam = new DataTable();
             var dt_SpResult = new DataTable();
 
-            logForm.AddLogMessage($"{DateTime.Now.ToString("yyyy-MM-dd HH':'mm':'ss")} STEP 1 - QUET STORED PROCEDURE");
+            AddLogMessage($"{DateTime.Now.ToString("yyyy-MM-dd HH':'mm':'ss")} STEP 1 - QUET STORED PROCEDURE");
 
             dt_SpList = Get_StoreProcedure_List();
 
-            logForm.AddLogMessage($"{DateTime.Now.ToString("yyyy-MM-dd HH':'mm':'ss")} STEP 2 - BAT DAU LAY STORED PROCEDURE");
-            logForm.AddLogMessage($"{DateTime.Now.ToString("yyyy-MM-dd HH':'mm':'ss")} STEP 2 - Total Stored Procedure: {dt_SpList.Rows.Count}");
+            AddLogMessage($"{DateTime.Now.ToString("yyyy-MM-dd HH':'mm':'ss")} STEP 2 - BAT DAU LAY STORED PROCEDURE");
+            AddLogMessage($"{DateTime.Now.ToString("yyyy-MM-dd HH':'mm':'ss")} STEP 2 - Total Stored Procedure: {dt_SpList.Rows.Count}");
 
             int i = 1;
             string _schema = "";
@@ -283,7 +282,7 @@ namespace GenStore
                 dt_SpParam = Get_StoreProcedure_Param(_schema, _sp);
                 dt_SpResult = Get_StoreProcedure_Result(_schema, _sp);
 
-                logForm.AddLogMessage($"{DateTime.Now.ToString("yyyy-MM-dd HH':'mm':'ss")} STEP 2 - {i} / {dt_SpList.Rows.Count} ==> \"{r["ROUTINE_NAME"]}\"");
+                AddLogMessage($"{DateTime.Now.ToString("yyyy-MM-dd HH':'mm':'ss")} STEP 2 - {i} / {dt_SpList.Rows.Count} ==> \"{r["ROUTINE_NAME"]}\"");
                 var pList = new List<SpParam>();
                 foreach (DataRow par in dt_SpParam.Rows)
                 {
@@ -354,7 +353,7 @@ namespace GenStore
                 i++;
             }
 
-            logForm.AddLogMessage($"{DateTime.Now.ToString("yyyy-MM-dd HH':'mm':'ss")} XONG");
+            AddLogMessage($"{DateTime.Now.ToString("yyyy-MM-dd HH':'mm':'ss")} XONG");
 
             GenSPT4 genSPT4Processed = new GenSPT4(SpList, P_NameSpace, P_OutPutSolutionFolder, P_ContextSource);
 
@@ -362,7 +361,7 @@ namespace GenStore
 
             if (ExceptionList.Count > 0)
             {
-                logForm.AddLogMessage($"{DateTime.Now.ToString("yyyy-MM-dd HH':'mm':'ss")} Da tim thay exception! Vui long check o file GenSP_log.txt in '{P_OutPutPhysicalFolder}'");
+                AddLogMessage($"{DateTime.Now.ToString("yyyy-MM-dd HH':'mm':'ss")} Da tim thay exception! Vui long check o file GenSP_log.txt in '{P_OutPutPhysicalFolder}'");
                 WriteException();
             }
 
@@ -548,13 +547,98 @@ namespace GenStore
             }
             catch (Exception e)
             {
-                logForm.AddLogMessage($"{DateTime.Now.ToString("yyyy-MM-dd HH':'mm':'ss")} ERROR!!! --> {e.Message}");
+                AddLogMessage($"{DateTime.Now.ToString("yyyy-MM-dd HH':'mm':'ss")} ERROR!!! --> {e.Message}");
             }
         }
 
         private void MainGenSP_Load(object sender, EventArgs e)
         {
             CenterToScreen();
+            // Clear the comboBox first to ensure it's empty
+            comboBoxConnectionStrings.Items.Clear();
+            comboBoxConnectionStrings.Items.Add("Please choose.");
+            comboBoxConnectionStrings.SelectedIndex = 0; // Select the default item by default
+
+            // Check if connectionStrings is not null and not empty before populating the comboBox
+            if (connectionStrings != null && connectionStrings.Count > 0)
+            {
+                foreach (var connectionString in connectionStrings)
+                {
+                    comboBoxConnectionStrings.Items.Add(connectionString.Name);
+                }
+            }
+            else
+            {
+                btnStartGen.Enabled = false;
+                comboBoxConnectionStrings.Items.Add("Vui lòng nhập connection vào appsetings.json");
+            }
+        }
+
+        private void AddLogMessage(string logMessage)
+        {
+            lock (logLock)
+            {
+                logBuilder.AppendLine(logMessage);
+                if (logBuilder.Length > MAX_LOG_BUFFER_SIZE)
+                {
+                    FlushLogBuffer();
+                }
+            }
+
+            if (richTextBoxLog.InvokeRequired)
+            {
+                BeginInvoke(new Action(FlushLogBuffer));
+            }
+            else
+            {
+                FlushLogBuffer();
+            }
+        }
+
+        private void FlushLogBuffer()
+        {
+            lock (logLock)
+            {
+                // Append the new log messages to the existing content in the RichTextBox
+                richTextBoxLog.AppendText(logBuilder.ToString());
+                logBuilder.Clear();
+
+                // Ensure that the log does not exceed the maximum buffer size
+                if (richTextBoxLog.TextLength > MAX_LOG_BUFFER_SIZE)
+                {
+                    int excessTextLength = richTextBoxLog.TextLength - MAX_LOG_BUFFER_SIZE;
+                    richTextBoxLog.Select(0, excessTextLength);
+                    richTextBoxLog.SelectedText = "";
+                }
+
+                // Scroll to the end to keep the latest log visible
+                richTextBoxLog.SelectionStart = richTextBoxLog.TextLength;
+                richTextBoxLog.ScrollToCaret();
+            }
+        }
+
+        // Override the FormClosing event to prevent the form from closing when the "OK" button in the MessageBox is clicked
+
+        private void ClearLog()
+        {
+            lock (logLock)
+            {
+                richTextBoxLog.Clear();
+                logBuilder.Clear();
+            }
+        }
+
+        private void comboBoxConnectionStrings_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            // Check if the selected item is not the default item
+            if (comboBoxConnectionStrings.SelectedIndex > 0)
+            {
+                btnStartGen.Enabled = true;
+            }
+            else
+            {
+                btnStartGen.Enabled = false;
+            }
         }
     }
 }
