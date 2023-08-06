@@ -8,6 +8,8 @@ using Newtonsoft.Json.Linq;
 using System.Data;
 using System.Data.SqlClient;
 using System.Text;
+using System.Diagnostics;
+using System.Runtime.InteropServices;
 
 namespace GenStore
 {
@@ -28,12 +30,19 @@ namespace GenStore
         private object logLock = new object();
         private const int MAX_LOG_BUFFER_SIZE = 5000;
         // load json
-        private IConfigurationRoot? configuration;
-        private List<ConnectionStringSettings>? connectionStrings;
+        private IConfigurationRoot configuration;
+        private List<ConnectionStringSettings> connectionStrings;
         public MainGenSP()
         {
             InitializeComponent();
             LoadConnect();
+        }
+
+        private bool IsAppAlreadyRunning()
+        {
+            Process currentProcess = Process.GetCurrentProcess();
+            Process[] processes = Process.GetProcessesByName(currentProcess.ProcessName);
+            return processes.Length > 1;
         }
 
         private void LoadConnect()
@@ -67,10 +76,12 @@ namespace GenStore
         private void btnStartGen_Click(object sender, EventArgs e)
         {
             ClearLog();
+            SpList.Clear();
+            ExceptionList.Clear();
             // active tablog
             tabConnection.SelectedTab = tabLog;
             // Get user inputs from textboxes
-            string? selectedConnectionStringName = comboBoxConnectionStrings.SelectedItem?.ToString();
+            string selectedConnectionStringName = comboBoxConnectionStrings.SelectedItem?.ToString();
             if (string.IsNullOrEmpty(selectedConnectionStringName))
             {
                 MessageBox.Show("Vui lòng chọn một kết nối.", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Warning);
@@ -141,7 +152,19 @@ namespace GenStore
                 else
                     filenameValue = $"ResultSingle_{currentTime}.cs";
             }
-
+            // Check if the output physical folder exists, and create it if it doesn't.
+            if (!Directory.Exists(fFolderValue))
+            {
+                try
+                {
+                    Directory.CreateDirectory(fFolderValue);
+                }
+                catch (Exception ex)
+                {
+                    AddLogMessage($"Error creating output folder: {ex.Message}");
+                    return;
+                }
+            }
             // Doc chuoi ket noi tu appsettings json dua tren ten chuoi ket noi
             string connectionString = GetConnectionString(nameConnectionString);
             P_ConnectionString = connectionString;
@@ -554,6 +577,23 @@ namespace GenStore
         private void MainGenSP_Load(object sender, EventArgs e)
         {
             CenterToScreen();
+            if (IsAppAlreadyRunning())
+            {
+                // mo lai ung dung neu dang chay
+                Process currentProcess = Process.GetCurrentProcess();
+                Process[] processes = Process.GetProcessesByName(currentProcess.ProcessName);
+                foreach (Process process in processes)
+                {
+                    if (process.Id != currentProcess.Id)
+                    {
+                        NativeMethods.SetForegroundWindow(process.MainWindowHandle);
+                        break;
+                    }
+                }
+
+                this.Close(); // Đóng form hiện tại
+            }
+
             // Clear the comboBox first to ensure it's empty
             comboBoxConnectionStrings.Items.Clear();
             comboBoxConnectionStrings.Items.Add("Please choose.");
@@ -640,5 +680,11 @@ namespace GenStore
                 btnStartGen.Enabled = false;
             }
         }
+    }
+    public class NativeMethods
+    {
+        [DllImport("user32.dll")]
+        [return: MarshalAs(UnmanagedType.Bool)]
+        public static extern bool SetForegroundWindow(IntPtr hWnd);
     }
 }

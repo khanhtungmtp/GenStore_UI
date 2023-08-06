@@ -70,7 +70,7 @@
             // lbNameConnectionString
             // 
             lbNameConnectionString.AutoSize = true;
-            lbNameConnectionString.Location = new Point(2, 12);
+            lbNameConnectionString.Location = new Point(5, 12);
             lbNameConnectionString.Margin = new Padding(5, 0, 5, 0);
             lbNameConnectionString.Name = "lbNameConnectionString";
             lbNameConnectionString.Size = new Size(244, 23);
@@ -90,7 +90,7 @@
             // label3
             // 
             label3.AutoSize = true;
-            label3.Location = new Point(0, 193);
+            label3.Location = new Point(3, 193);
             label3.Margin = new Padding(5, 0, 5, 0);
             label3.Name = "label3";
             label3.Size = new Size(228, 23);
@@ -114,7 +114,7 @@
             // label4
             // 
             label4.AutoSize = true;
-            label4.Location = new Point(0, 240);
+            label4.Location = new Point(3, 240);
             label4.Margin = new Padding(5, 0, 5, 0);
             label4.Name = "label4";
             label4.Size = new Size(264, 23);
@@ -131,7 +131,7 @@
             // label5
             // 
             label5.AutoSize = true;
-            label5.Location = new Point(0, 287);
+            label5.Location = new Point(3, 287);
             label5.Margin = new Padding(5, 0, 5, 0);
             label5.Name = "label5";
             label5.Size = new Size(255, 23);
@@ -149,7 +149,7 @@
             // label6
             // 
             label6.AutoSize = true;
-            label6.Location = new Point(0, 59);
+            label6.Location = new Point(3, 59);
             label6.Margin = new Padding(5, 0, 5, 0);
             label6.Name = "label6";
             label6.Size = new Size(222, 23);
@@ -166,7 +166,7 @@
             // label7
             // 
             label7.AutoSize = true;
-            label7.Location = new Point(0, 105);
+            label7.Location = new Point(3, 105);
             label7.Margin = new Padding(5, 0, 5, 0);
             label7.Name = "label7";
             label7.Size = new Size(245, 23);
@@ -183,7 +183,7 @@
             // label8
             // 
             label8.AutoSize = true;
-            label8.Location = new Point(0, 150);
+            label8.Location = new Point(3, 150);
             label8.Margin = new Padding(5, 0, 5, 0);
             label8.Name = "label8";
             label8.Size = new Size(247, 23);
@@ -247,10 +247,10 @@
             // tabLog
             // 
             tabLog.Controls.Add(richTextBoxLog);
-            tabLog.Location = new Point(4, 24);
+            tabLog.Location = new Point(4, 32);
             tabLog.Name = "tabLog";
             tabLog.Padding = new Padding(3);
-            tabLog.Size = new Size(733, 378);
+            tabLog.Size = new Size(733, 370);
             tabLog.TabIndex = 1;
             tabLog.Text = "Log";
             tabLog.UseVisualStyleBackColor = true;
@@ -260,6 +260,7 @@
             richTextBoxLog.Font = new Font("Times New Roman", 12F, FontStyle.Regular, GraphicsUnit.Point);
             richTextBoxLog.Location = new Point(-2, 0);
             richTextBoxLog.Name = "richTextBoxLog";
+            richTextBoxLog.ReadOnly = true;
             richTextBoxLog.Size = new Size(735, 371);
             richTextBoxLog.TabIndex = 0;
             richTextBoxLog.Text = "";
