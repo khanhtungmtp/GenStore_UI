@@ -7,12 +7,16 @@
 <#@ import namespace="System.Linq" #>
 <#@ import namespace="System.Text" #>
 <#@ import namespace="System.Collections.Generic" #>
+<#@ import namespace="GenStore.Models" #>
+
 using System;
 using System.Data;
 using System.Collections.Generic;
 using Microsoft.Data.SqlClient;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
+using AgileObjects.AgileMapper;
+using AutoMapper;
 
 namespace <#=Namespace#>.<#=SolutionDestinationFolder#>
 {
@@ -20,12 +24,12 @@ namespace <#=Namespace#>.<#=SolutionDestinationFolder#>
     {
 <# foreach (var sp in SpList){ if (sp.Results.Count > 0) {#>
         private DbSet<<#=sp.Name#>> <#=sp.Name#> { get; set; }
-        private readonly DBContext _context;
+        private readonly DBContext _dbContext;
 <# }}#>
 
-        public <#=DestinationDbContext#>(DBContext context)
+        public <#=DestinationDbContext#>(DBContext dbContext)
         {
-           _context = context;
+           _dbContext = context;
         }
 
         public <#=DestinationDbContext#>(DbContextOptions<<#=SourceDbContext#>> options)
@@ -41,15 +45,11 @@ namespace <#=Namespace#>.<#=SolutionDestinationFolder#>
 <#    }}#>            
             base.OnModelCreating(modelBuilder);
         }
-// ====================================start services============================================
-        // xu ly ben services cach 1 dung FromSqlRaw || ExecuteSqlRawAsync
+        // ====================================start services============================================
+        #region xu ly ben services cach 1 dung FromSqlRaw || ExecuteSqlRawAsync
 <# foreach (var sp in SpList){ #>
-        <#=sp.GetMethodDefinition()#>_c1(<# foreach (var p in sp.Params){#><#=(p.Order == "1" ? "" : "," )#><#=(p.isOutput ? "ref " : "" )#><#=p.Type#> <#=p.Param#><#}#>)
+        <#=sp.GetMethodDefinition()#>_C1(<# foreach (var p in sp.Params){#><#=(p.Order == "1" ? "" : "," )#><#=(p.isOutput ? "ref " : "" )#><#=p.Type#> <#=p.Param#><#}#>)
         {
-<#if (sp.Results.Count > 0){#>
-            //Initialize Result 
-            List<<#=sp.Name#>> listResult = new List<<#=sp.Name#>>();
-<#}#>
 <#if (sp.Params.Count > 0) {#>
             // Parameters
 <# foreach (var p in sp.Params){ #>
@@ -60,10 +60,10 @@ namespace <#=Namespace#>.<#=SolutionDestinationFolder#>
 <#if (sp.Results.Count > 0) {#>
                 
             //Output Data
-            listResult = await _context.<#=sp.Name#>.FromSqlRaw(sqlQuery <# foreach (var p in sp.Params){ #>, p_<#=p.Param#> <#}#>).ToListAsync();<#}#>
+           List<<#=sp.Name#>> listData = await _dbContext.<#=sp.Name#>.FromSqlRaw(sqlQuery <# foreach (var p in sp.Params){ #>, p_<#=p.Param#> <#}#>).ToListAsync();<#}#>
 <#        else{#>
             //Execution
-           await _context.Database.ExecuteSqlRawAsync(sqlQuery <# foreach (var p in sp.Params){ #>, p_<#=p.Param#> <#}#>);<#}#>
+           await _dbContext.Database.ExecuteSqlRawAsync(sqlQuery <# foreach (var p in sp.Params){ #>, p_<#=p.Param#> <#}#>);<#}#>
 
 <#if (sp.Params.Where(x=> x.isOutput).Count() > 0) {#>
                 
@@ -71,21 +71,24 @@ namespace <#=Namespace#>.<#=SolutionDestinationFolder#>
 <# foreach (var p in sp.Params.Where(x=> x.isOutput)){ #>                <#=p.Param#> = (<#=p.Type#>)p_<#=p.Param#>.Value;
 <#}#>
 <#}#>
-     
 <#if (sp.Results.Count > 0) {#>
-            //Return
-            return listResult;
+            // Map using AutoMapper
+            // var listResult = _mapper.Map<List<ClassNameDto>>(listData);
+            // Map using AgileMapper
+            // var listResult = Mapper.Map(listData).ToANew<List<ClassNameDto>>();
+            // Return
+            // return listResult;
+            return listData;
 <#}#>
         }
-
+        #endregion
 <# }#>
-        // xu ly ben services cach 2 dung FromSqlInterpolated || ExecuteSqlInterpolatedAsync
+
+        #region xu ly ben services cach 2 dung FromSqlInterpolated || ExecuteSqlInterpolatedAsync
 <# foreach (var sp in SpList){ #>
-        <#=sp.GetMethodDefinition()#>_c2(<# foreach (var p in sp.Params){ #><#=(p.Order == "1" ? "" : "," )#><#=(p.isOutput ? "ref " : "" )#><#=p.Type#> <#=p.Param#><#}#>)
+        <#=sp.GetMethodDefinition()#>_C2(<# foreach (var p in sp.Params){ #><#=(p.Order == "1" ? "" : "," )#><#=(p.isOutput ? "ref " : "" )#><#=p.Type#> <#=p.Param#><#}#>)
         {
 <#if (sp.Results.Count > 0){#>
-            //Initialize Result 
-            List<<#=sp.Name#>> listResult = new List<<#=sp.Name#>>();
             // Parameters
 <# foreach (var p in sp.Params){ #>
             var p_<#=p.Param#> = <#=p.Param#> ?? (object)DBNull.Value;
@@ -96,32 +99,35 @@ namespace <#=Namespace#>.<#=SolutionDestinationFolder#>
         
 <#if (sp.Results.Count > 0) {#>
             //Output Data
-            listResult = await _context.<#=sp.Name#>
+            List<<#=sp.Name#>> listData = await _dbContext.<#=sp.Name#>
             .FromSqlInterpolated(sqlQuery)
             .ToListAsync();
 <#}#>
 <#else{#>
             //Execution
-            await _context.Database.ExecuteSqlInterpolatedAsync(sqlQuery <# foreach (var p in sp.Params){ #>, p_<#=p.Param#> <#}#>);
+            await _dbContext.Database.ExecuteSqlInterpolatedAsync(sqlQuery <# foreach (var p in sp.Params){ #>, p_<#=p.Param#> <#}#>);
 <#}#>
-
 <#if (sp.Params.Where(x=> x.isOutput).Count() > 0) {#>
             //Output Params
 <# foreach (var p in sp.Params.Where(x=> x.isOutput)){ #>        <#=p.Param#> = (<#=p.Type#>)p_<#=p.Param#>.Value;
 <#}#>
-<#}#>
-            
+<#}#>            
 <#if (sp.Results.Count > 0) {#>
-        //Return
-        return listResult;
+            // Map using AutoMapper
+            // var listResult = _mapper.Map<List<ClassNameDto>>(listData);
+            // Map using AgileMapper
+            // var listResult = Mapper.Map(listData).ToANew<List<ClassNameDto>>();
+            // Return
+            // return listResult;
+            return listData;
 <#}#>
-    }
+            }
 
 <# }#>
-// ====================================end services============================================
-
-
-// ====================================model or Dto============================================
+        // ====================================end services============================================
+        #endregion
+        // ====================================Model or Dto============================================
+        #region Model
 <# foreach (var sp in SpList){ if (sp.Results.Count > 0){#>
         public class <#=sp.Name#>
         {
@@ -129,7 +135,20 @@ namespace <#=Namespace#>.<#=SolutionDestinationFolder#>
             public <#=r.Type#> <#=r.Name#> { get; set; }
 <# }#>
         }
-
+        #endregion
 <# }}#>
-    }
+   
+
+        #region Dto 
+<# foreach (var sp in SpList){ if (sp.Results.Count > 0){#>
+        public class <#=sp.Name#>
+        {
+<# foreach (var r in sp.Results){#>
+            public <#=r.Type#> <#=sp.ConvertToStandardPropertyName(r.Name)#> { get; set; }
+<# }#>
+        }
+         #endregion
+    <# }}#>
+
+  }
 }
