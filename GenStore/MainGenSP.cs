@@ -2,14 +2,14 @@
 using GenStore.Models;
 using GenStore.T4;
 using Microsoft.Extensions.Configuration;
-using System.Configuration;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
+using System.Configuration;
 using System.Data;
 using System.Data.SqlClient;
-using System.Text;
 using System.Diagnostics;
 using System.Runtime.InteropServices;
+using System.Text;
 
 namespace GenStore
 {
@@ -375,6 +375,19 @@ namespace GenStore
 
                 i++;
             }
+            // xu ly name
+            char[] specialChars = new char[] { '.', ' ', '$', '-' };
+            bool containsSpecialChars = SpList.Any(item => item.Results.Any(x => ContainsAnySpecialChars(x.Name)));
+            if (containsSpecialChars)
+            {
+                foreach (var item in SpList)
+                {
+                    foreach (var result in item.Results)
+                    {
+                        result.Name = RemoveAndJoin(result.Name);
+                    }
+                }
+            }
 
             AddLogMessage($"{DateTime.Now.ToString("yyyy-MM-dd HH':'mm':'ss")} XONG");
 
@@ -388,6 +401,25 @@ namespace GenStore
                 WriteException();
             }
 
+        }
+
+        static bool ContainsAnySpecialChars(string input)
+        {
+            char[] specialChars = new char[] { '.', ' ', '$', '-' };
+            return input.Any(c => specialChars.Contains(c));
+        }
+
+        private string RemoveAndJoin(string input)
+        {
+            string[] words = input.Split(new char[] { '.', ' ', '$', '-' }, StringSplitOptions.RemoveEmptyEntries);
+
+            StringBuilder result = new StringBuilder();
+            foreach (string word in words)
+            {
+                result.Append(word);
+            }
+
+            return result.ToString();
         }
 
         private string SP_GetType(string type, bool isNullable)
