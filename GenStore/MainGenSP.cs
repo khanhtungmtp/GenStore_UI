@@ -375,7 +375,7 @@ namespace GenStore
 
                 i++;
             }
-            // xu ly name
+            // xu ly name khi co ky tu dac biet
             char[] specialChars = new char[] { '.', ' ', '$', '-' };
             bool containsSpecialChars = SpList.Any(item => item.Results.Any(x => ContainsAnySpecialChars(x.Name)));
             if (containsSpecialChars)
