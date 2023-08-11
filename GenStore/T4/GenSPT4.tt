@@ -49,38 +49,47 @@ namespace <#=Namespace#>.<#=SolutionDestinationFolder#>
 <# foreach (var sp in SpList){ #>
         <#=sp.GetMethodDefinition()#>_C1(<# foreach (var p in sp.Params){#><#=(p.Order == "1" ? "" : "," )#><#=(p.isOutput ? "ref " : "" )#><#=p.Type#> <#=p.Param#><#}#>)
         {
-<#if (sp.Params.Count > 0) {#>
+<#if (sp.Params.Count > 1) {#>
             // Parameters
+            var sqlParameters = new SqlParameter[]
+            {
+<# foreach (var p in sp.Params) { #>
+                new SqlParameter("@<#=p.Param#>", <#=p.Param#> ?? (object)DBNull.Value),
+<# } #>
+            };
+<# } #>
+<#if (sp.Params.Count == 1) {#>
 <# foreach (var p in sp.Params){ #>
-            SqlParameter p_<#=p.Param#> = new SqlParameter("@<#=p.Param#>", <#=p.Param#> ?? (object)DBNull.Value);
-<# }#><#}#>           
+            SqlParameter sqlParameters = new SqlParameter("@<#=p.Param#>", <#=p.Param#> ?? (object)DBNull.Value);
+<# }#>
+<# } #>
             // Processing 
-            string sqlQuery = $@"EXEC [<#=sp.Schema#>].[<#=sp.Name#>] <# foreach (var p in sp.Params){ #><#=(p.Order == "1" ? "" : ", " )#>@<#=p.Param#><#=(p.isOutput ? " OUTPUT" : "" )#><#}#>";
-<#if (sp.Results.Count > 0) {#>
-                
-            //Output Data
-            List<<#=sp.Name#>> listData = await _dbContext.<#=sp.Name#>.FromSqlRaw(sqlQuery <# foreach (var p in sp.Params){ #>, p_<#=p.Param#> <#}#>).ToListAsync();<#}#>
-<#        else{#>
-            //Execution
-           await _dbContext.Database.ExecuteSqlRawAsync(sqlQuery <# foreach (var p in sp.Params){ #>, p_<#=p.Param#> <#}#>);<#}#>
-
-<#if (sp.Params.Where(x=> x.isOutput).Count() > 0) {#>
-                
-            //Output Params
-<# foreach (var p in sp.Params.Where(x=> x.isOutput)){ #>                <#=p.Param#> = (<#=p.Type#>)p_<#=p.Param#>.Value;
-<#}#>
-<#}#>
-<#if (sp.Results.Count > 0) {#>
+            string sqlQuery = $@"EXEC [<#=sp.Schema#>].[<#=sp.Name#>] <# foreach (var p in sp.Params) { #><#=(p.Order == "1" ? "" : ", " )#>@<#=p.Param#><#=(p.isOutput ? " OUTPUT" : "" )#><# } #>";
+<# if (sp.Results.Count > 0) { #>               
+            // Output Data
+            List<<#=sp.Name#>> listData = await _dbContext.<#=sp.Name#>.FromSqlRaw(sqlQuery, sqlParameters).ToListAsync();
+<# } else { #>
+            // Execution
+            await _dbContext.Database.ExecuteSqlRawAsync(sqlQuery, sqlParameters);
+<# } #>
+<# if (sp.Params.Where(x=> x.isOutput).Count() > 0) { #>
+            // Output Params
+<# foreach (var p in sp.Params.Where(x=> x.isOutput)) { #>
+            <#=p.Param#> = (<#=p.Type#>)p_<#=p.Param#>.Value;
+<# } #>
+<# } #>
+<# if (sp.Results.Count > 0) { #>
             // Map using AutoMapper
             // var listResult = _mapper.Map<List<ClassNameDto>>(listData);
             // Map using AgileMapper
             // var listResult = Mapper.Map(listData).ToANew<List<ClassNameDto>>();
-            // Return
             // return listResult;
             return listData;
-<#}#>
+<# } #>
         }
-<# }#>
+<#
+}
+#>
         #endregion
 
         #region xu ly ben services cach 2 dung FromSqlInterpolated || ExecuteSqlInterpolatedAsync
@@ -116,11 +125,10 @@ namespace <#=Namespace#>.<#=SolutionDestinationFolder#>
             // var listResult = _mapper.Map<List<ClassNameDto>>(listData);
             // Map using AgileMapper
             // var listResult = Mapper.Map(listData).ToANew<List<ClassNameDto>>();
-            // Return
             // return listResult;
             return listData;
 <#}#>
-            }
+        }
 <# }#>
         // ====================================end services============================================
         #endregion
@@ -136,10 +144,9 @@ namespace <#=Namespace#>.<#=SolutionDestinationFolder#>
 <# }}#>
         #endregion
    
-
         #region Dto 
 <# foreach (var sp in SpList){ if (sp.Results.Count > 0){#>
-        public class <#=sp.Name#>
+        public class <#=sp.Name#>Dto
         {
 <# foreach (var r in sp.Results){#>
             public <#=r.Type#> <#=sp.ConvertToStandardPropertyName(r.Name)#> { get; set; }
