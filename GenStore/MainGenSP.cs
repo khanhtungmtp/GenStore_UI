@@ -391,10 +391,36 @@ namespace GenStore
 
             AddLogMessage($"{DateTime.Now.ToString("yyyy-MM-dd HH':'mm':'ss")} XONG");
 
-            GenSPT4 genSPT4Processed = new GenSPT4(SpList, P_NameSpace, P_OutPutSolutionFolder, P_ContextSource);
+            //GenSPT4 genSPT4Processed = new GenSPT4(SpList, P_NameSpace, P_OutPutSolutionFolder, P_ContextSource);
 
-            File.WriteAllText(Path.Combine(P_OutPutPhysicalFolder, P_OutPutFilename), genSPT4Processed.TransformText());
+            //File.WriteAllText(Path.Combine(P_OutPutPhysicalFolder, P_OutPutFilename), genSPT4Processed.TransformText());
+            string folderModel = Path.Combine(Directory.GetCurrentDirectory(), "Models");
+            if (!Directory.Exists(folderModel))
+            {
+                try
+                {
+                    Directory.CreateDirectory(folderModel);
+                }
+                catch (Exception ex)
+                {
+                    AddLogMessage($"Error creating output folder: {ex.Message}");
+                    return;
+                }
+            }
+            foreach (var storedProcedure in SpList)
+            {
+                // handle services
+                GenSPT4 genSPT4Processed = new GenSPT4(new List<Sp> { storedProcedure }, P_NameSpace, P_OutPutSolutionFolder, P_ContextSource);
+                string generatedOutput = genSPT4Processed.TransformText();
+                string outputPath = Path.Combine(P_OutPutPhysicalFolder + "\\Services", $"{storedProcedure.Name}.cs");
+                File.WriteAllText(outputPath, generatedOutput);
 
+                // handle model
+                ModelT4 genModelT4Processed = new ModelT4(new List<Sp> { storedProcedure }, P_NameSpace, P_OutPutSolutionFolder, P_ContextSource);
+                string generatedModelOutput = genModelT4Processed.TransformText();
+                string outputModelPath = Path.Combine(P_OutPutPhysicalFolder + "\\Models", $"{storedProcedure.Name}.cs");
+                File.WriteAllText(outputModelPath, generatedModelOutput);
+            }
             if (ExceptionList.Count > 0)
             {
                 AddLogMessage($"{DateTime.Now.ToString("yyyy-MM-dd HH':'mm':'ss")} Da tim thay exception! Vui long check o file GenSP_log.txt in '{P_OutPutPhysicalFolder}'");

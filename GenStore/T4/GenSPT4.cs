@@ -74,146 +74,64 @@ namespace GenStore.T4
             
             #line default
             #line hidden
-            this.Write("\r\n    {\r\n        private readonly DBContext _dbContext;\r\n");
+            this.Write("\r\n    {\r\n        private readonly DBContext _dbContext;\r\n\r\n        // ===========" +
+                    "=========================start services=========================================" +
+                    "===\r\n        #region xu ly ben services cach 1 dung FromSqlRaw || ExecuteSqlRawA" +
+                    "sync\r\n");
             
-            #line 24 "D:\Projectme\TOOL\GenStore_UI\GenStore\T4\GenSPT4.tt"
- foreach (var sp in SpList){ if (sp.Results.Count > 0) {
-            
-            #line default
-            #line hidden
-            this.Write("        public virtual DbSet<");
-            
-            #line 25 "D:\Projectme\TOOL\GenStore_UI\GenStore\T4\GenSPT4.tt"
-            this.Write(this.ToStringHelper.ToStringWithCulture(sp.Name));
-            
-            #line default
-            #line hidden
-            this.Write("> ");
-            
-            #line 25 "D:\Projectme\TOOL\GenStore_UI\GenStore\T4\GenSPT4.tt"
-            this.Write(this.ToStringHelper.ToStringWithCulture(sp.Name));
-            
-            #line default
-            #line hidden
-            this.Write(" { get; set; }\r\n");
-            
-            #line 26 "D:\Projectme\TOOL\GenStore_UI\GenStore\T4\GenSPT4.tt"
- }}
-            
-            #line default
-            #line hidden
-            this.Write("\r\n        public ");
-            
-            #line 28 "D:\Projectme\TOOL\GenStore_UI\GenStore\T4\GenSPT4.tt"
-            this.Write(this.ToStringHelper.ToStringWithCulture(DestinationDbContext));
-            
-            #line default
-            #line hidden
-            this.Write("(DBContext dbContext)\r\n        {\r\n           _dbContext = dbContext;\r\n        }\r\n" +
-                    "\r\n        public ");
-            
-            #line 33 "D:\Projectme\TOOL\GenStore_UI\GenStore\T4\GenSPT4.tt"
-            this.Write(this.ToStringHelper.ToStringWithCulture(DestinationDbContext));
-            
-            #line default
-            #line hidden
-            this.Write("(DbContextOptions<");
-            
-            #line 33 "D:\Projectme\TOOL\GenStore_UI\GenStore\T4\GenSPT4.tt"
-            this.Write(this.ToStringHelper.ToStringWithCulture(SourceDbContext));
-            
-            #line default
-            #line hidden
-            this.Write(@"> options)
-            : base(options)
-        {
-            // Database.SetCommandTimeout((int)TimeSpan.FromMinutes(10).TotalSeconds);
-        }               
-
-        protected override void OnModelCreating(ModelBuilder modelBuilder)
-        {                                 
-            // No key   
-");
-            
-            #line 42 "D:\Projectme\TOOL\GenStore_UI\GenStore\T4\GenSPT4.tt"
-    foreach (var sp in SpList){ if (sp.Results.Count > 0){
-            
-            #line default
-            #line hidden
-            this.Write("            modelBuilder.Entity<");
-            
-            #line 43 "D:\Projectme\TOOL\GenStore_UI\GenStore\T4\GenSPT4.tt"
-            this.Write(this.ToStringHelper.ToStringWithCulture(sp.Name));
-            
-            #line default
-            #line hidden
-            this.Write(">().HasNoKey().ToView(null);\r\n");
-            
-            #line 44 "D:\Projectme\TOOL\GenStore_UI\GenStore\T4\GenSPT4.tt"
-    }}
-            
-            #line default
-            #line hidden
-            this.Write(@"            
-            base.OnModelCreating(modelBuilder);
-        }
-        // ====================================start services============================================
-        #region xu ly ben services cach 1 dung FromSqlRaw || ExecuteSqlRawAsync
-");
-            
-            #line 49 "D:\Projectme\TOOL\GenStore_UI\GenStore\T4\GenSPT4.tt"
+            #line 27 "D:\Projectme\TOOL\GenStore_UI\GenStore\T4\GenSPT4.tt"
  foreach (var sp in SpList){ 
             
             #line default
             #line hidden
             this.Write("        ");
             
-            #line 50 "D:\Projectme\TOOL\GenStore_UI\GenStore\T4\GenSPT4.tt"
+            #line 28 "D:\Projectme\TOOL\GenStore_UI\GenStore\T4\GenSPT4.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(sp.GetMethodDefinition()));
             
             #line default
             #line hidden
             this.Write("_C1(");
             
-            #line 50 "D:\Projectme\TOOL\GenStore_UI\GenStore\T4\GenSPT4.tt"
+            #line 28 "D:\Projectme\TOOL\GenStore_UI\GenStore\T4\GenSPT4.tt"
  foreach (var p in sp.Params){
             
             #line default
             #line hidden
             
-            #line 50 "D:\Projectme\TOOL\GenStore_UI\GenStore\T4\GenSPT4.tt"
+            #line 28 "D:\Projectme\TOOL\GenStore_UI\GenStore\T4\GenSPT4.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture((p.Order == "1" ? "" : "," )));
             
             #line default
             #line hidden
             
-            #line 50 "D:\Projectme\TOOL\GenStore_UI\GenStore\T4\GenSPT4.tt"
+            #line 28 "D:\Projectme\TOOL\GenStore_UI\GenStore\T4\GenSPT4.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture((p.isOutput ? "ref " : "" )));
             
             #line default
             #line hidden
             
-            #line 50 "D:\Projectme\TOOL\GenStore_UI\GenStore\T4\GenSPT4.tt"
+            #line 28 "D:\Projectme\TOOL\GenStore_UI\GenStore\T4\GenSPT4.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(p.Type));
             
             #line default
             #line hidden
             this.Write(" ");
             
-            #line 50 "D:\Projectme\TOOL\GenStore_UI\GenStore\T4\GenSPT4.tt"
+            #line 28 "D:\Projectme\TOOL\GenStore_UI\GenStore\T4\GenSPT4.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(p.Param));
             
             #line default
             #line hidden
             
-            #line 50 "D:\Projectme\TOOL\GenStore_UI\GenStore\T4\GenSPT4.tt"
+            #line 28 "D:\Projectme\TOOL\GenStore_UI\GenStore\T4\GenSPT4.tt"
 }
             
             #line default
             #line hidden
             this.Write(")\r\n        {\r\n");
             
-            #line 52 "D:\Projectme\TOOL\GenStore_UI\GenStore\T4\GenSPT4.tt"
+            #line 30 "D:\Projectme\TOOL\GenStore_UI\GenStore\T4\GenSPT4.tt"
 if (sp.Params.Count > 1) {
             
             #line default
@@ -221,148 +139,148 @@ if (sp.Params.Count > 1) {
             this.Write("            // Parameters\r\n            var sqlParameters = new SqlParameter[]\r\n  " +
                     "          {\r\n");
             
-            #line 56 "D:\Projectme\TOOL\GenStore_UI\GenStore\T4\GenSPT4.tt"
+            #line 34 "D:\Projectme\TOOL\GenStore_UI\GenStore\T4\GenSPT4.tt"
  foreach (var p in sp.Params) { 
             
             #line default
             #line hidden
             this.Write("                new SqlParameter(\"@");
             
-            #line 57 "D:\Projectme\TOOL\GenStore_UI\GenStore\T4\GenSPT4.tt"
+            #line 35 "D:\Projectme\TOOL\GenStore_UI\GenStore\T4\GenSPT4.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(p.Param));
             
             #line default
             #line hidden
             this.Write("\", ");
             
-            #line 57 "D:\Projectme\TOOL\GenStore_UI\GenStore\T4\GenSPT4.tt"
+            #line 35 "D:\Projectme\TOOL\GenStore_UI\GenStore\T4\GenSPT4.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(p.Param));
             
             #line default
             #line hidden
             this.Write(" ?? (object)DBNull.Value),\r\n");
             
-            #line 58 "D:\Projectme\TOOL\GenStore_UI\GenStore\T4\GenSPT4.tt"
+            #line 36 "D:\Projectme\TOOL\GenStore_UI\GenStore\T4\GenSPT4.tt"
  } 
             
             #line default
             #line hidden
             this.Write("            };\r\n");
             
-            #line 60 "D:\Projectme\TOOL\GenStore_UI\GenStore\T4\GenSPT4.tt"
+            #line 38 "D:\Projectme\TOOL\GenStore_UI\GenStore\T4\GenSPT4.tt"
  } 
             
             #line default
             #line hidden
             
-            #line 61 "D:\Projectme\TOOL\GenStore_UI\GenStore\T4\GenSPT4.tt"
+            #line 39 "D:\Projectme\TOOL\GenStore_UI\GenStore\T4\GenSPT4.tt"
 if (sp.Params.Count == 1) {
             
             #line default
             #line hidden
             
-            #line 62 "D:\Projectme\TOOL\GenStore_UI\GenStore\T4\GenSPT4.tt"
+            #line 40 "D:\Projectme\TOOL\GenStore_UI\GenStore\T4\GenSPT4.tt"
  foreach (var p in sp.Params){ 
             
             #line default
             #line hidden
             this.Write("            SqlParameter sqlParameters = new SqlParameter(\"@");
             
-            #line 63 "D:\Projectme\TOOL\GenStore_UI\GenStore\T4\GenSPT4.tt"
+            #line 41 "D:\Projectme\TOOL\GenStore_UI\GenStore\T4\GenSPT4.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(p.Param));
             
             #line default
             #line hidden
             this.Write("\", ");
             
-            #line 63 "D:\Projectme\TOOL\GenStore_UI\GenStore\T4\GenSPT4.tt"
+            #line 41 "D:\Projectme\TOOL\GenStore_UI\GenStore\T4\GenSPT4.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(p.Param));
             
             #line default
             #line hidden
             this.Write(" ?? (object)DBNull.Value);\r\n");
             
-            #line 64 "D:\Projectme\TOOL\GenStore_UI\GenStore\T4\GenSPT4.tt"
+            #line 42 "D:\Projectme\TOOL\GenStore_UI\GenStore\T4\GenSPT4.tt"
  }
             
             #line default
             #line hidden
             
-            #line 65 "D:\Projectme\TOOL\GenStore_UI\GenStore\T4\GenSPT4.tt"
+            #line 43 "D:\Projectme\TOOL\GenStore_UI\GenStore\T4\GenSPT4.tt"
  } 
             
             #line default
             #line hidden
             this.Write("            // Processing \r\n            string sqlQuery = $@\"EXEC [");
             
-            #line 67 "D:\Projectme\TOOL\GenStore_UI\GenStore\T4\GenSPT4.tt"
+            #line 45 "D:\Projectme\TOOL\GenStore_UI\GenStore\T4\GenSPT4.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(sp.Schema));
             
             #line default
             #line hidden
             this.Write("].[");
             
-            #line 67 "D:\Projectme\TOOL\GenStore_UI\GenStore\T4\GenSPT4.tt"
+            #line 45 "D:\Projectme\TOOL\GenStore_UI\GenStore\T4\GenSPT4.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(sp.Name));
             
             #line default
             #line hidden
             this.Write("] ");
             
-            #line 67 "D:\Projectme\TOOL\GenStore_UI\GenStore\T4\GenSPT4.tt"
+            #line 45 "D:\Projectme\TOOL\GenStore_UI\GenStore\T4\GenSPT4.tt"
  foreach (var p in sp.Params) { 
             
             #line default
             #line hidden
             
-            #line 67 "D:\Projectme\TOOL\GenStore_UI\GenStore\T4\GenSPT4.tt"
+            #line 45 "D:\Projectme\TOOL\GenStore_UI\GenStore\T4\GenSPT4.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture((p.Order == "1" ? "" : ", " )));
             
             #line default
             #line hidden
             this.Write("@");
             
-            #line 67 "D:\Projectme\TOOL\GenStore_UI\GenStore\T4\GenSPT4.tt"
+            #line 45 "D:\Projectme\TOOL\GenStore_UI\GenStore\T4\GenSPT4.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(p.Param));
             
             #line default
             #line hidden
             
-            #line 67 "D:\Projectme\TOOL\GenStore_UI\GenStore\T4\GenSPT4.tt"
+            #line 45 "D:\Projectme\TOOL\GenStore_UI\GenStore\T4\GenSPT4.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture((p.isOutput ? " OUTPUT" : "" )));
             
             #line default
             #line hidden
             
-            #line 67 "D:\Projectme\TOOL\GenStore_UI\GenStore\T4\GenSPT4.tt"
+            #line 45 "D:\Projectme\TOOL\GenStore_UI\GenStore\T4\GenSPT4.tt"
  } 
             
             #line default
             #line hidden
             this.Write("\";\r\n");
             
-            #line 68 "D:\Projectme\TOOL\GenStore_UI\GenStore\T4\GenSPT4.tt"
+            #line 46 "D:\Projectme\TOOL\GenStore_UI\GenStore\T4\GenSPT4.tt"
  if (sp.Results.Count > 0) { 
             
             #line default
             #line hidden
             this.Write("               \r\n            // Output Data\r\n            List<");
             
-            #line 70 "D:\Projectme\TOOL\GenStore_UI\GenStore\T4\GenSPT4.tt"
+            #line 48 "D:\Projectme\TOOL\GenStore_UI\GenStore\T4\GenSPT4.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(sp.Name));
             
             #line default
             #line hidden
             this.Write("> listData = await _dbContext.");
             
-            #line 70 "D:\Projectme\TOOL\GenStore_UI\GenStore\T4\GenSPT4.tt"
+            #line 48 "D:\Projectme\TOOL\GenStore_UI\GenStore\T4\GenSPT4.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(sp.Name));
             
             #line default
             #line hidden
             this.Write(".FromSqlRaw(sqlQuery, sqlParameters).ToListAsync();\r\n");
             
-            #line 71 "D:\Projectme\TOOL\GenStore_UI\GenStore\T4\GenSPT4.tt"
+            #line 49 "D:\Projectme\TOOL\GenStore_UI\GenStore\T4\GenSPT4.tt"
  } else { 
             
             #line default
@@ -370,60 +288,60 @@ if (sp.Params.Count == 1) {
             this.Write("            // Execution\r\n            await _dbContext.Database.ExecuteSqlRawAsyn" +
                     "c(sqlQuery, sqlParameters);\r\n");
             
-            #line 74 "D:\Projectme\TOOL\GenStore_UI\GenStore\T4\GenSPT4.tt"
+            #line 52 "D:\Projectme\TOOL\GenStore_UI\GenStore\T4\GenSPT4.tt"
  } 
             
             #line default
             #line hidden
             
-            #line 75 "D:\Projectme\TOOL\GenStore_UI\GenStore\T4\GenSPT4.tt"
+            #line 53 "D:\Projectme\TOOL\GenStore_UI\GenStore\T4\GenSPT4.tt"
  if (sp.Params.Where(x=> x.isOutput).Count() > 0) { 
             
             #line default
             #line hidden
             this.Write("            // Output Params\r\n");
             
-            #line 77 "D:\Projectme\TOOL\GenStore_UI\GenStore\T4\GenSPT4.tt"
+            #line 55 "D:\Projectme\TOOL\GenStore_UI\GenStore\T4\GenSPT4.tt"
  foreach (var p in sp.Params.Where(x=> x.isOutput)) { 
             
             #line default
             #line hidden
             this.Write("            ");
             
-            #line 78 "D:\Projectme\TOOL\GenStore_UI\GenStore\T4\GenSPT4.tt"
+            #line 56 "D:\Projectme\TOOL\GenStore_UI\GenStore\T4\GenSPT4.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(p.Param));
             
             #line default
             #line hidden
             this.Write(" = (");
             
-            #line 78 "D:\Projectme\TOOL\GenStore_UI\GenStore\T4\GenSPT4.tt"
+            #line 56 "D:\Projectme\TOOL\GenStore_UI\GenStore\T4\GenSPT4.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(p.Type));
             
             #line default
             #line hidden
             this.Write(")p_");
             
-            #line 78 "D:\Projectme\TOOL\GenStore_UI\GenStore\T4\GenSPT4.tt"
+            #line 56 "D:\Projectme\TOOL\GenStore_UI\GenStore\T4\GenSPT4.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(p.Param));
             
             #line default
             #line hidden
             this.Write(".Value;\r\n");
             
-            #line 79 "D:\Projectme\TOOL\GenStore_UI\GenStore\T4\GenSPT4.tt"
+            #line 57 "D:\Projectme\TOOL\GenStore_UI\GenStore\T4\GenSPT4.tt"
  } 
             
             #line default
             #line hidden
             
-            #line 80 "D:\Projectme\TOOL\GenStore_UI\GenStore\T4\GenSPT4.tt"
+            #line 58 "D:\Projectme\TOOL\GenStore_UI\GenStore\T4\GenSPT4.tt"
  } 
             
             #line default
             #line hidden
             
-            #line 81 "D:\Projectme\TOOL\GenStore_UI\GenStore\T4\GenSPT4.tt"
+            #line 59 "D:\Projectme\TOOL\GenStore_UI\GenStore\T4\GenSPT4.tt"
  if (sp.Results.Count > 0) { 
             
             #line default
@@ -436,14 +354,14 @@ if (sp.Params.Count == 1) {
             return listData;
 ");
             
-            #line 88 "D:\Projectme\TOOL\GenStore_UI\GenStore\T4\GenSPT4.tt"
+            #line 66 "D:\Projectme\TOOL\GenStore_UI\GenStore\T4\GenSPT4.tt"
  } 
             
             #line default
             #line hidden
             this.Write("        }\r\n");
             
-            #line 90 "D:\Projectme\TOOL\GenStore_UI\GenStore\T4\GenSPT4.tt"
+            #line 68 "D:\Projectme\TOOL\GenStore_UI\GenStore\T4\GenSPT4.tt"
 
 }
 
@@ -453,181 +371,181 @@ if (sp.Params.Count == 1) {
             this.Write("        #endregion\r\n\r\n        #region xu ly ben services cach 2 dung FromSqlInter" +
                     "polated || ExecuteSqlInterpolatedAsync\r\n");
             
-            #line 96 "D:\Projectme\TOOL\GenStore_UI\GenStore\T4\GenSPT4.tt"
+            #line 74 "D:\Projectme\TOOL\GenStore_UI\GenStore\T4\GenSPT4.tt"
  foreach (var sp in SpList){ 
             
             #line default
             #line hidden
             this.Write("        ");
             
-            #line 97 "D:\Projectme\TOOL\GenStore_UI\GenStore\T4\GenSPT4.tt"
+            #line 75 "D:\Projectme\TOOL\GenStore_UI\GenStore\T4\GenSPT4.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(sp.GetMethodDefinition()));
             
             #line default
             #line hidden
             this.Write("_C2(");
             
-            #line 97 "D:\Projectme\TOOL\GenStore_UI\GenStore\T4\GenSPT4.tt"
+            #line 75 "D:\Projectme\TOOL\GenStore_UI\GenStore\T4\GenSPT4.tt"
  foreach (var p in sp.Params){ 
             
             #line default
             #line hidden
             
-            #line 97 "D:\Projectme\TOOL\GenStore_UI\GenStore\T4\GenSPT4.tt"
+            #line 75 "D:\Projectme\TOOL\GenStore_UI\GenStore\T4\GenSPT4.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture((p.Order == "1" ? "" : "," )));
             
             #line default
             #line hidden
             
-            #line 97 "D:\Projectme\TOOL\GenStore_UI\GenStore\T4\GenSPT4.tt"
+            #line 75 "D:\Projectme\TOOL\GenStore_UI\GenStore\T4\GenSPT4.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture((p.isOutput ? "ref " : "" )));
             
             #line default
             #line hidden
             
-            #line 97 "D:\Projectme\TOOL\GenStore_UI\GenStore\T4\GenSPT4.tt"
+            #line 75 "D:\Projectme\TOOL\GenStore_UI\GenStore\T4\GenSPT4.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(p.Type));
             
             #line default
             #line hidden
             this.Write(" ");
             
-            #line 97 "D:\Projectme\TOOL\GenStore_UI\GenStore\T4\GenSPT4.tt"
+            #line 75 "D:\Projectme\TOOL\GenStore_UI\GenStore\T4\GenSPT4.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(p.Param));
             
             #line default
             #line hidden
             
-            #line 97 "D:\Projectme\TOOL\GenStore_UI\GenStore\T4\GenSPT4.tt"
+            #line 75 "D:\Projectme\TOOL\GenStore_UI\GenStore\T4\GenSPT4.tt"
 }
             
             #line default
             #line hidden
             this.Write(")\r\n        {\r\n");
             
-            #line 99 "D:\Projectme\TOOL\GenStore_UI\GenStore\T4\GenSPT4.tt"
+            #line 77 "D:\Projectme\TOOL\GenStore_UI\GenStore\T4\GenSPT4.tt"
 if (sp.Results.Count > 0){
             
             #line default
             #line hidden
             this.Write("            // Parameters\r\n");
             
-            #line 101 "D:\Projectme\TOOL\GenStore_UI\GenStore\T4\GenSPT4.tt"
+            #line 79 "D:\Projectme\TOOL\GenStore_UI\GenStore\T4\GenSPT4.tt"
  foreach (var p in sp.Params){ 
             
             #line default
             #line hidden
             this.Write("            var p_");
             
-            #line 102 "D:\Projectme\TOOL\GenStore_UI\GenStore\T4\GenSPT4.tt"
+            #line 80 "D:\Projectme\TOOL\GenStore_UI\GenStore\T4\GenSPT4.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(p.Param));
             
             #line default
             #line hidden
             this.Write(" = ");
             
-            #line 102 "D:\Projectme\TOOL\GenStore_UI\GenStore\T4\GenSPT4.tt"
+            #line 80 "D:\Projectme\TOOL\GenStore_UI\GenStore\T4\GenSPT4.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(p.Param));
             
             #line default
             #line hidden
             this.Write(" ?? (object)DBNull.Value;\r\n");
             
-            #line 103 "D:\Projectme\TOOL\GenStore_UI\GenStore\T4\GenSPT4.tt"
+            #line 81 "D:\Projectme\TOOL\GenStore_UI\GenStore\T4\GenSPT4.tt"
  }
             
             #line default
             #line hidden
             
-            #line 104 "D:\Projectme\TOOL\GenStore_UI\GenStore\T4\GenSPT4.tt"
+            #line 82 "D:\Projectme\TOOL\GenStore_UI\GenStore\T4\GenSPT4.tt"
 }
             
             #line default
             #line hidden
             this.Write("            // Processing \r\n            FormattableString sqlQuery = $@\"EXEC [");
             
-            #line 106 "D:\Projectme\TOOL\GenStore_UI\GenStore\T4\GenSPT4.tt"
+            #line 84 "D:\Projectme\TOOL\GenStore_UI\GenStore\T4\GenSPT4.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(sp.Schema));
             
             #line default
             #line hidden
             this.Write("].[");
             
-            #line 106 "D:\Projectme\TOOL\GenStore_UI\GenStore\T4\GenSPT4.tt"
+            #line 84 "D:\Projectme\TOOL\GenStore_UI\GenStore\T4\GenSPT4.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(sp.Name));
             
             #line default
             #line hidden
             this.Write("] ");
             
-            #line 106 "D:\Projectme\TOOL\GenStore_UI\GenStore\T4\GenSPT4.tt"
+            #line 84 "D:\Projectme\TOOL\GenStore_UI\GenStore\T4\GenSPT4.tt"
  foreach (var p in sp.Params){ 
             
             #line default
             #line hidden
             
-            #line 106 "D:\Projectme\TOOL\GenStore_UI\GenStore\T4\GenSPT4.tt"
+            #line 84 "D:\Projectme\TOOL\GenStore_UI\GenStore\T4\GenSPT4.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture((p.Order == "1" ? "" : ", " )));
             
             #line default
             #line hidden
             this.Write("@");
             
-            #line 106 "D:\Projectme\TOOL\GenStore_UI\GenStore\T4\GenSPT4.tt"
+            #line 84 "D:\Projectme\TOOL\GenStore_UI\GenStore\T4\GenSPT4.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(p.Param));
             
             #line default
             #line hidden
             this.Write("={p_");
             
-            #line 106 "D:\Projectme\TOOL\GenStore_UI\GenStore\T4\GenSPT4.tt"
+            #line 84 "D:\Projectme\TOOL\GenStore_UI\GenStore\T4\GenSPT4.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(p.Param));
             
             #line default
             #line hidden
             this.Write("}");
             
-            #line 106 "D:\Projectme\TOOL\GenStore_UI\GenStore\T4\GenSPT4.tt"
+            #line 84 "D:\Projectme\TOOL\GenStore_UI\GenStore\T4\GenSPT4.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture((p.isOutput ? " OUTPUT" : "" )));
             
             #line default
             #line hidden
             
-            #line 106 "D:\Projectme\TOOL\GenStore_UI\GenStore\T4\GenSPT4.tt"
+            #line 84 "D:\Projectme\TOOL\GenStore_UI\GenStore\T4\GenSPT4.tt"
 }
             
             #line default
             #line hidden
             this.Write("\";\r\n        \r\n");
             
-            #line 108 "D:\Projectme\TOOL\GenStore_UI\GenStore\T4\GenSPT4.tt"
+            #line 86 "D:\Projectme\TOOL\GenStore_UI\GenStore\T4\GenSPT4.tt"
 if (sp.Results.Count > 0) {
             
             #line default
             #line hidden
             this.Write("            //Output Data\r\n            List<");
             
-            #line 110 "D:\Projectme\TOOL\GenStore_UI\GenStore\T4\GenSPT4.tt"
+            #line 88 "D:\Projectme\TOOL\GenStore_UI\GenStore\T4\GenSPT4.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(sp.Name));
             
             #line default
             #line hidden
             this.Write("> listData = await _dbContext.");
             
-            #line 110 "D:\Projectme\TOOL\GenStore_UI\GenStore\T4\GenSPT4.tt"
+            #line 88 "D:\Projectme\TOOL\GenStore_UI\GenStore\T4\GenSPT4.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(sp.Name));
             
             #line default
             #line hidden
             this.Write("\r\n            .FromSqlInterpolated(sqlQuery)\r\n            .ToListAsync();\r\n");
             
-            #line 113 "D:\Projectme\TOOL\GenStore_UI\GenStore\T4\GenSPT4.tt"
+            #line 91 "D:\Projectme\TOOL\GenStore_UI\GenStore\T4\GenSPT4.tt"
 }
             
             #line default
             #line hidden
             
-            #line 114 "D:\Projectme\TOOL\GenStore_UI\GenStore\T4\GenSPT4.tt"
+            #line 92 "D:\Projectme\TOOL\GenStore_UI\GenStore\T4\GenSPT4.tt"
 else{
             
             #line default
@@ -635,82 +553,82 @@ else{
             this.Write("            //Execution\r\n            await _dbContext.Database.ExecuteSqlInterpol" +
                     "atedAsync(sqlQuery ");
             
-            #line 116 "D:\Projectme\TOOL\GenStore_UI\GenStore\T4\GenSPT4.tt"
+            #line 94 "D:\Projectme\TOOL\GenStore_UI\GenStore\T4\GenSPT4.tt"
  foreach (var p in sp.Params){ 
             
             #line default
             #line hidden
             this.Write(", p_");
             
-            #line 116 "D:\Projectme\TOOL\GenStore_UI\GenStore\T4\GenSPT4.tt"
+            #line 94 "D:\Projectme\TOOL\GenStore_UI\GenStore\T4\GenSPT4.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(p.Param));
             
             #line default
             #line hidden
             this.Write(" ");
             
-            #line 116 "D:\Projectme\TOOL\GenStore_UI\GenStore\T4\GenSPT4.tt"
+            #line 94 "D:\Projectme\TOOL\GenStore_UI\GenStore\T4\GenSPT4.tt"
 }
             
             #line default
             #line hidden
             this.Write(");\r\n");
             
-            #line 117 "D:\Projectme\TOOL\GenStore_UI\GenStore\T4\GenSPT4.tt"
+            #line 95 "D:\Projectme\TOOL\GenStore_UI\GenStore\T4\GenSPT4.tt"
 }
             
             #line default
             #line hidden
             
-            #line 118 "D:\Projectme\TOOL\GenStore_UI\GenStore\T4\GenSPT4.tt"
+            #line 96 "D:\Projectme\TOOL\GenStore_UI\GenStore\T4\GenSPT4.tt"
 if (sp.Params.Where(x=> x.isOutput).Count() > 0) {
             
             #line default
             #line hidden
             this.Write("            //Output Params\r\n");
             
-            #line 120 "D:\Projectme\TOOL\GenStore_UI\GenStore\T4\GenSPT4.tt"
+            #line 98 "D:\Projectme\TOOL\GenStore_UI\GenStore\T4\GenSPT4.tt"
  foreach (var p in sp.Params.Where(x=> x.isOutput)){ 
             
             #line default
             #line hidden
             this.Write("        ");
             
-            #line 120 "D:\Projectme\TOOL\GenStore_UI\GenStore\T4\GenSPT4.tt"
+            #line 98 "D:\Projectme\TOOL\GenStore_UI\GenStore\T4\GenSPT4.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(p.Param));
             
             #line default
             #line hidden
             this.Write(" = (");
             
-            #line 120 "D:\Projectme\TOOL\GenStore_UI\GenStore\T4\GenSPT4.tt"
+            #line 98 "D:\Projectme\TOOL\GenStore_UI\GenStore\T4\GenSPT4.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(p.Type));
             
             #line default
             #line hidden
             this.Write(")p_");
             
-            #line 120 "D:\Projectme\TOOL\GenStore_UI\GenStore\T4\GenSPT4.tt"
+            #line 98 "D:\Projectme\TOOL\GenStore_UI\GenStore\T4\GenSPT4.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(p.Param));
             
             #line default
             #line hidden
             this.Write(".Value;\r\n");
             
-            #line 121 "D:\Projectme\TOOL\GenStore_UI\GenStore\T4\GenSPT4.tt"
+            #line 99 "D:\Projectme\TOOL\GenStore_UI\GenStore\T4\GenSPT4.tt"
 }
             
             #line default
             #line hidden
             
-            #line 122 "D:\Projectme\TOOL\GenStore_UI\GenStore\T4\GenSPT4.tt"
+            #line 100 "D:\Projectme\TOOL\GenStore_UI\GenStore\T4\GenSPT4.tt"
 }
             
             #line default
             #line hidden
             this.Write("            \r\n");
             
-            #line 123 "D:\Projectme\TOOL\GenStore_UI\GenStore\T4\GenSPT4.tt"
+            #line 101 "D:\Projectme\TOOL\GenStore_UI\GenStore\T4\GenSPT4.tt"
 if (sp.Results.Count > 0) {
             
             #line default
@@ -723,14 +641,14 @@ if (sp.Results.Count > 0) {
             return listData;
 ");
             
-            #line 130 "D:\Projectme\TOOL\GenStore_UI\GenStore\T4\GenSPT4.tt"
+            #line 108 "D:\Projectme\TOOL\GenStore_UI\GenStore\T4\GenSPT4.tt"
 }
             
             #line default
             #line hidden
             this.Write("        }\r\n");
             
-            #line 132 "D:\Projectme\TOOL\GenStore_UI\GenStore\T4\GenSPT4.tt"
+            #line 110 "D:\Projectme\TOOL\GenStore_UI\GenStore\T4\GenSPT4.tt"
  }
             
             #line default
@@ -740,98 +658,98 @@ if (sp.Results.Count > 0) {
                     "===========Model or Dto============================================\r\n        #re" +
                     "gion Model\r\n");
             
-            #line 137 "D:\Projectme\TOOL\GenStore_UI\GenStore\T4\GenSPT4.tt"
+            #line 115 "D:\Projectme\TOOL\GenStore_UI\GenStore\T4\GenSPT4.tt"
  foreach (var sp in SpList){ if (sp.Results.Count > 0){
             
             #line default
             #line hidden
             this.Write("        public partial class ");
             
-            #line 138 "D:\Projectme\TOOL\GenStore_UI\GenStore\T4\GenSPT4.tt"
+            #line 116 "D:\Projectme\TOOL\GenStore_UI\GenStore\T4\GenSPT4.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(sp.Name));
             
             #line default
             #line hidden
             this.Write("\r\n        {\r\n");
             
-            #line 140 "D:\Projectme\TOOL\GenStore_UI\GenStore\T4\GenSPT4.tt"
+            #line 118 "D:\Projectme\TOOL\GenStore_UI\GenStore\T4\GenSPT4.tt"
  foreach (var r in sp.Results){
             
             #line default
             #line hidden
             this.Write("            public ");
             
-            #line 141 "D:\Projectme\TOOL\GenStore_UI\GenStore\T4\GenSPT4.tt"
+            #line 119 "D:\Projectme\TOOL\GenStore_UI\GenStore\T4\GenSPT4.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(r.Type));
             
             #line default
             #line hidden
             this.Write(" ");
             
-            #line 141 "D:\Projectme\TOOL\GenStore_UI\GenStore\T4\GenSPT4.tt"
+            #line 119 "D:\Projectme\TOOL\GenStore_UI\GenStore\T4\GenSPT4.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(r.Name));
             
             #line default
             #line hidden
             this.Write(" { get; set; }\r\n");
             
-            #line 142 "D:\Projectme\TOOL\GenStore_UI\GenStore\T4\GenSPT4.tt"
+            #line 120 "D:\Projectme\TOOL\GenStore_UI\GenStore\T4\GenSPT4.tt"
  }
             
             #line default
             #line hidden
             this.Write("        }\r\n");
             
-            #line 144 "D:\Projectme\TOOL\GenStore_UI\GenStore\T4\GenSPT4.tt"
+            #line 122 "D:\Projectme\TOOL\GenStore_UI\GenStore\T4\GenSPT4.tt"
  }}
             
             #line default
             #line hidden
             this.Write("        #endregion\r\n   \r\n        #region Dto \r\n");
             
-            #line 148 "D:\Projectme\TOOL\GenStore_UI\GenStore\T4\GenSPT4.tt"
+            #line 126 "D:\Projectme\TOOL\GenStore_UI\GenStore\T4\GenSPT4.tt"
  foreach (var sp in SpList){ if (sp.Results.Count > 0){
             
             #line default
             #line hidden
             this.Write("        public class ");
             
-            #line 149 "D:\Projectme\TOOL\GenStore_UI\GenStore\T4\GenSPT4.tt"
+            #line 127 "D:\Projectme\TOOL\GenStore_UI\GenStore\T4\GenSPT4.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(sp.Name));
             
             #line default
             #line hidden
             this.Write("Dto\r\n        {\r\n");
             
-            #line 151 "D:\Projectme\TOOL\GenStore_UI\GenStore\T4\GenSPT4.tt"
+            #line 129 "D:\Projectme\TOOL\GenStore_UI\GenStore\T4\GenSPT4.tt"
  foreach (var r in sp.Results){
             
             #line default
             #line hidden
             this.Write("            public ");
             
-            #line 152 "D:\Projectme\TOOL\GenStore_UI\GenStore\T4\GenSPT4.tt"
+            #line 130 "D:\Projectme\TOOL\GenStore_UI\GenStore\T4\GenSPT4.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(r.Type));
             
             #line default
             #line hidden
             this.Write(" ");
             
-            #line 152 "D:\Projectme\TOOL\GenStore_UI\GenStore\T4\GenSPT4.tt"
+            #line 130 "D:\Projectme\TOOL\GenStore_UI\GenStore\T4\GenSPT4.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(sp.ConvertToStandardPropertyName(r.Name)));
             
             #line default
             #line hidden
             this.Write(" { get; set; }\r\n");
             
-            #line 153 "D:\Projectme\TOOL\GenStore_UI\GenStore\T4\GenSPT4.tt"
+            #line 131 "D:\Projectme\TOOL\GenStore_UI\GenStore\T4\GenSPT4.tt"
  }
             
             #line default
             #line hidden
             this.Write("        }\r\n");
             
-            #line 155 "D:\Projectme\TOOL\GenStore_UI\GenStore\T4\GenSPT4.tt"
+            #line 133 "D:\Projectme\TOOL\GenStore_UI\GenStore\T4\GenSPT4.tt"
  }}
             
             #line default

@@ -21,29 +21,7 @@ namespace <#=Namespace#>.<#=SolutionDestinationFolder#>
     public partial class <#=DestinationDbContext#> : <#=SourceDbContext#>
     {
         private readonly DBContext _dbContext;
-<# foreach (var sp in SpList){ if (sp.Results.Count > 0) {#>
-        public virtual DbSet<<#=sp.Name#>> <#=sp.Name#> { get; set; }
-<# }}#>
 
-        public <#=DestinationDbContext#>(DBContext dbContext)
-        {
-           _dbContext = dbContext;
-        }
-
-        public <#=DestinationDbContext#>(DbContextOptions<<#=SourceDbContext#>> options)
-            : base(options)
-        {
-            // Database.SetCommandTimeout((int)TimeSpan.FromMinutes(10).TotalSeconds);
-        }               
-
-        protected override void OnModelCreating(ModelBuilder modelBuilder)
-        {                                 
-            // No key   
-<#    foreach (var sp in SpList){ if (sp.Results.Count > 0){#>
-            modelBuilder.Entity<<#=sp.Name#>>().HasNoKey().ToView(null);
-<#    }}#>            
-            base.OnModelCreating(modelBuilder);
-        }
         // ====================================start services============================================
         #region xu ly ben services cach 1 dung FromSqlRaw || ExecuteSqlRawAsync
 <# foreach (var sp in SpList){ #>

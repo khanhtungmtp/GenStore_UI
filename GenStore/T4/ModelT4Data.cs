@@ -3,7 +3,7 @@ using GenStore.Models;
 
 namespace GenStore.T4
 {
-    partial class GenSPT4
+    partial class ModelT4
     {
         private List<Sp> SpList { get; set; }
 
@@ -15,7 +15,7 @@ namespace GenStore.T4
         /// <summary>
         /// Gets or sets the name of the SpResultElement.
         /// </summary>
-        public GenSPT4(List<Sp> _spList,
+        public ModelT4(List<Sp> _spList,
             string _namespace,
             string _solutionDestinationFolder,
             string _sourceDbContext)
