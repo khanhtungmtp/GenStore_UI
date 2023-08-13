@@ -398,7 +398,9 @@ namespace GenStore
             string folderServices = Path.Combine(Directory.GetCurrentDirectory(), "Services");
             CreateDirectoryIfNotExists(folderServices, "Error creating folder Services: ");
             string folderContext = Path.Combine(Directory.GetCurrentDirectory(), "Data");
-            CreateDirectoryIfNotExists(folderContext, "Error creating folder Data: ");    
+            CreateDirectoryIfNotExists(folderContext, "Error creating folder Data: ");   
+            string folderTypeScipt = Path.Combine(Directory.GetCurrentDirectory(), "Typescript");
+            CreateDirectoryIfNotExists(folderTypeScipt, "Error creating folder typescript: ");    
 
             foreach (var storedProcedure in SpList)
             {
@@ -406,27 +408,28 @@ namespace GenStore
                 {
                     // handle context
                     ContextT4 contextT4Processed = new ContextT4(SpList, P_NameSpace, P_OutPutSolutionFolder, P_ContextSource);
-                    string generatedContextOutput = contextT4Processed.TransformText();
                     string outputContextPath = Path.Combine(folderContext, $"DBContext.cs");
-                    File.WriteAllText(outputContextPath, generatedContextOutput);
+                    File.WriteAllText(outputContextPath, contextT4Processed.TransformText());
 
                     // handle services
                     GenSPT4 genSPT4Processed = new GenSPT4(new List<Sp> { storedProcedure }, P_NameSpace, P_OutPutSolutionFolder, P_ContextSource);
-                    string generatedServicesOutput = genSPT4Processed.TransformText();
                     string outputServicesPath = Path.Combine(folderServices, $"{storedProcedure.Name}.cs");
-                    File.WriteAllText(outputServicesPath, generatedServicesOutput);
+                    File.WriteAllText(outputServicesPath, genSPT4Processed.TransformText());
 
                     // handle model
                     ModelT4 genModelT4Processed = new ModelT4(new List<Sp> { storedProcedure }, P_NameSpace, P_OutPutSolutionFolder, P_ContextSource);
-                    string generatedModelOutput = genModelT4Processed.TransformText();
                     string outputModelPath = Path.Combine(folderModel, $"{storedProcedure.Name}.cs");
-                    File.WriteAllText(outputModelPath, generatedModelOutput);
+                    File.WriteAllText(outputModelPath, genModelT4Processed.TransformText());
 
                     // handle dto
                     DtoT4 genDtoT4Processed = new DtoT4(new List<Sp> { storedProcedure }, P_NameSpace, P_OutPutSolutionFolder, P_ContextSource);
-                    string generatedDtoOutput = genDtoT4Processed.TransformText();
                     string outputDtoPath = Path.Combine(folderDto, $"{storedProcedure.Name}.cs");
-                    File.WriteAllText(outputDtoPath, generatedDtoOutput);
+                    File.WriteAllText(outputDtoPath, genDtoT4Processed.TransformText());
+
+                    // handle typescript
+                    TypeScriptT4 genTypeScriptT4Processed = new TypeScriptT4(new List<Sp> { storedProcedure });
+                    string outputTypescriptPath = Path.Combine(folderTypeScipt, $"{storedProcedure.Name.ToLower()}.ts");
+                    File.WriteAllText(outputTypescriptPath, genTypeScriptT4Processed.TransformText());
                 }
             }
             if (ExceptionList.Any())

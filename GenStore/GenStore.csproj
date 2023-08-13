@@ -6,7 +6,7 @@
     <Nullable>disable</Nullable>
     <UseWindowsForms>true</UseWindowsForms>
     <ImplicitUsings>enable</ImplicitUsings>
-	  <FileVersion>1.0.3</FileVersion>
+	  <FileVersion>1.0.4</FileVersion>
 	  <Authors>KhanhTungMTP</Authors>
 	  <AssemblyTitle>Gen Stored Procedure Scaffolder for .netcore</AssemblyTitle>
 	  <Description>Gen Stored Procedure Scaffolder for .netcore !!!</Description>
@@ -25,6 +25,11 @@
       <DesignTime>True</DesignTime>
       <AutoGen>True</AutoGen>
       <DependentUpon>ModelT4.tt</DependentUpon>
+    </Compile>
+    <Compile Update="T4\TypeScriptT4.cs">
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>TypeScriptT4.tt</DependentUpon>
     </Compile>
   </ItemGroup>
 
@@ -113,6 +118,20 @@
 		<None Update="T4\DtoT4.tt">
 			<Generator>TextTemplatingFilePreprocessor</Generator>
 			<LastGenOutput>DtoT4.cs</LastGenOutput>
+		</None>
+	</ItemGroup>
+	<ItemGroup>
+		<Compile Update="T4\TypeScriptT4.cs">
+			<DesignTime>True</DesignTime>
+			<AutoGen>True</AutoGen>
+			<DependentUpon>TypeScriptT4.tt</DependentUpon>
+		</Compile>
+	</ItemGroup>
+
+	<ItemGroup>
+		<None Update="T4\TypeScriptT4.tt">
+			<Generator>TextTemplatingFilePreprocessor</Generator>
+			<LastGenOutput>TypeScriptT4.cs</LastGenOutput>
 		</None>
 	</ItemGroup>
 

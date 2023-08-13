@@ -1,6 +1,7 @@
 ﻿
 using System.Reflection;
 using System.Text;
+using System.Text.RegularExpressions;
 
 namespace GenStore.Models
 {
@@ -41,6 +42,33 @@ namespace GenStore.Models
             }
         }
 
+        //public string ConvertToStandardPropertyName(string inputName)
+        //{
+        //    string[] words = inputName.Split('_');
+        //    var sb = new StringBuilder();
+
+        //    foreach (string word in words)
+        //    {
+        //        sb.Append(char.ToUpper(word[0]) + word.Substring(1).ToLower());
+        //    }
+
+        //    return sb.ToString();
+        //}
+
+        //public string ConvertToStandardPropertyName(string inputName)
+        //{
+        //    string[] words = inputName.Split('_');
+        //    var sb = new StringBuilder();
+
+        //    foreach (string word in words)
+        //    {
+        //        sb.Append(sb.Length > 0 ? "_" : "");
+        //        sb.Append(word.ToLower());
+        //    }
+
+        //    return sb.ToString();
+        //}
+
         public string ConvertToStandardPropertyName(string inputName)
         {
             string[] words = inputName.Split('_');
@@ -48,33 +76,58 @@ namespace GenStore.Models
 
             foreach (string word in words)
             {
+                sb.Append(sb.Length > 0 ? " " : "");
                 sb.Append(char.ToUpper(word[0]) + word.Substring(1).ToLower());
             }
 
-            return sb.ToString();
+            return sb.ToString().Replace(" ", "_");
         }
 
-        public void GenerateTypeScript(string tsCode)
+        public string ConvertToStandardPropertyNameTypeScript(string cSharpPropertyName)
         {
-            // Đường dẫn và tên tệp TypeScript bạn muốn tạo
-            string tsFilePath = Path.Combine(Directory.GetCurrentDirectory(), "abc.ts");
+            // convert PascalCase to camelCase
+            string[] words = Regex.Split(cSharpPropertyName, @"(?=[A-Z])");
+            string camelCaseName = string.Join("", words.Select((word, index) =>
+            {
+                if (index == 0)
+                {
+                    return word.ToLower();
+                }
+                else
+                {
+                    return char.ToLower(word[0]) + word.Substring(1);
+                }
+            }));
 
-            // Ghi mã TypeScript vào tệp
-            File.WriteAllText(tsFilePath, tsCode);
+            return camelCaseName;
         }
 
-        public string GetTsType(string csharpType)
+        public string ConvertCSharpTypeToTypeScript(string csharpType)
         {
             switch (csharpType)
             {
-                case "string":
-                    return "string";
                 case "int":
+                case "float":
+                case "double":
                 case "decimal":
                     return "number";
-                // Thêm các kiểu dữ liệu C# khác và kiểu tương ứng trong TypeScript
+                case "int?":
+                case "float?":
+                case "double?":
+                case "decimal?":
+                    return "number | null";
+                case "string":
+                    return "string";
+                case "string?":
+                    return "string | null";
+                case "DateTime":
+                    return "string | Date";
+                case "DateTime?":
+                    return "string | Date | null";
+                case "bool":
+                    return "boolean";
                 default:
-                    return "any";
+                    return "any"; 
             }
         }
 
