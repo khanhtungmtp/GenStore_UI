@@ -114,7 +114,7 @@ namespace GenStore
             // Chuyển đổi duration sang mili giây
             long seconds = (long)duration.TotalSeconds;
             // Show the execution time in the MessageBox
-            if (SpList.Count > 0)
+            if (SpList.Any())
             {
                 MessageBox.Show($"Thời gian xử lý: {seconds}s", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Information);
             }
@@ -141,7 +141,7 @@ namespace GenStore
 
             if (string.IsNullOrEmpty(fFolderValue))
             {
-                fFolderValue = Path.Combine(Directory.GetCurrentDirectory(), "output");
+                fFolderValue = Path.Combine(Directory.GetCurrentDirectory());
             }
 
             if (string.IsNullOrEmpty(filenameValue))
@@ -391,42 +391,65 @@ namespace GenStore
 
             AddLogMessage($"{DateTime.Now.ToString("yyyy-MM-dd HH':'mm':'ss")} XONG");
 
-            //GenSPT4 genSPT4Processed = new GenSPT4(SpList, P_NameSpace, P_OutPutSolutionFolder, P_ContextSource);
-
-            //File.WriteAllText(Path.Combine(P_OutPutPhysicalFolder, P_OutPutFilename), genSPT4Processed.TransformText());
             string folderModel = Path.Combine(Directory.GetCurrentDirectory(), "Models");
-            if (!Directory.Exists(folderModel))
-            {
-                try
-                {
-                    Directory.CreateDirectory(folderModel);
-                }
-                catch (Exception ex)
-                {
-                    AddLogMessage($"Error creating output folder: {ex.Message}");
-                    return;
-                }
-            }
+            CreateDirectoryIfNotExists(folderModel, "Error creating folder Model: ");
+            string folderDto = Path.Combine(Directory.GetCurrentDirectory(), "DTOs");
+            CreateDirectoryIfNotExists(folderDto, "Error creating folder DTOs: ");
+            string folderServices = Path.Combine(Directory.GetCurrentDirectory(), "Services");
+            CreateDirectoryIfNotExists(folderServices, "Error creating folder Services: ");
+            string folderContext = Path.Combine(Directory.GetCurrentDirectory(), "Data");
+            CreateDirectoryIfNotExists(folderContext, "Error creating folder Data: ");    
+
             foreach (var storedProcedure in SpList)
             {
-                // handle services
-                GenSPT4 genSPT4Processed = new GenSPT4(new List<Sp> { storedProcedure }, P_NameSpace, P_OutPutSolutionFolder, P_ContextSource);
-                string generatedOutput = genSPT4Processed.TransformText();
-                string outputPath = Path.Combine(P_OutPutPhysicalFolder + "\\Services", $"{storedProcedure.Name}.cs");
-                File.WriteAllText(outputPath, generatedOutput);
+                if (storedProcedure.Results.Any())
+                {
+                    // handle context
+                    ContextT4 contextT4Processed = new ContextT4(SpList, P_NameSpace, P_OutPutSolutionFolder, P_ContextSource);
+                    string generatedContextOutput = contextT4Processed.TransformText();
+                    string outputContextPath = Path.Combine(folderContext, $"DBContext.cs");
+                    File.WriteAllText(outputContextPath, generatedContextOutput);
 
-                // handle model
-                ModelT4 genModelT4Processed = new ModelT4(new List<Sp> { storedProcedure }, P_NameSpace, P_OutPutSolutionFolder, P_ContextSource);
-                string generatedModelOutput = genModelT4Processed.TransformText();
-                string outputModelPath = Path.Combine(P_OutPutPhysicalFolder + "\\Models", $"{storedProcedure.Name}.cs");
-                File.WriteAllText(outputModelPath, generatedModelOutput);
+                    // handle services
+                    GenSPT4 genSPT4Processed = new GenSPT4(new List<Sp> { storedProcedure }, P_NameSpace, P_OutPutSolutionFolder, P_ContextSource);
+                    string generatedServicesOutput = genSPT4Processed.TransformText();
+                    string outputServicesPath = Path.Combine(folderServices, $"{storedProcedure.Name}.cs");
+                    File.WriteAllText(outputServicesPath, generatedServicesOutput);
+
+                    // handle model
+                    ModelT4 genModelT4Processed = new ModelT4(new List<Sp> { storedProcedure }, P_NameSpace, P_OutPutSolutionFolder, P_ContextSource);
+                    string generatedModelOutput = genModelT4Processed.TransformText();
+                    string outputModelPath = Path.Combine(folderModel, $"{storedProcedure.Name}.cs");
+                    File.WriteAllText(outputModelPath, generatedModelOutput);
+
+                    // handle dto
+                    DtoT4 genDtoT4Processed = new DtoT4(new List<Sp> { storedProcedure }, P_NameSpace, P_OutPutSolutionFolder, P_ContextSource);
+                    string generatedDtoOutput = genDtoT4Processed.TransformText();
+                    string outputDtoPath = Path.Combine(folderDto, $"{storedProcedure.Name}.cs");
+                    File.WriteAllText(outputDtoPath, generatedDtoOutput);
+                }
             }
-            if (ExceptionList.Count > 0)
+            if (ExceptionList.Any())
             {
                 AddLogMessage($"{DateTime.Now.ToString("yyyy-MM-dd HH':'mm':'ss")} Da tim thay exception! Vui long check o file GenSP_log.txt in '{P_OutPutPhysicalFolder}'");
                 WriteException();
             }
 
+        }
+
+        private void CreateDirectoryIfNotExists(string path, string errorMessage)
+        {
+            if (!Directory.Exists(path))
+            {
+                try
+                {
+                    Directory.CreateDirectory(path);
+                }
+                catch (Exception ex)
+                {
+                    AddLogMessage(errorMessage + ex.Message);
+                }
+            }
         }
 
         static bool ContainsAnySpecialChars(string input)
@@ -658,7 +681,7 @@ namespace GenStore
             comboBoxConnectionStrings.SelectedIndex = 0; // Select the default item by default
 
             // Check if connectionStrings is not null and not empty before populating the comboBox
-            if (connectionStrings != null && connectionStrings.Count > 0)
+            if (connectionStrings != null && connectionStrings.Any())
             {
                 foreach (var connectionString in connectionStrings)
                 {

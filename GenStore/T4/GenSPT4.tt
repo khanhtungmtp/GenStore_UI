@@ -110,28 +110,6 @@ namespace <#=Namespace#>.<#=SolutionDestinationFolder#>
 <# }#>
         // ====================================end services============================================
         #endregion
-        // ====================================Model or Dto============================================
-        #region Model
-<# foreach (var sp in SpList){ if (sp.Results.Count > 0){#>
-        public partial class <#=sp.Name#>
-        {
-<# foreach (var r in sp.Results){#>
-            public <#=r.Type#> <#=r.Name#> { get; set; }
-<# }#>
-        }
-<# }}#>
-        #endregion
-   
-        #region Dto 
-<# foreach (var sp in SpList){ if (sp.Results.Count > 0){#>
-        public class <#=sp.Name#>Dto
-        {
-<# foreach (var r in sp.Results){#>
-            public <#=r.Type#> <#=sp.ConvertToStandardPropertyName(r.Name)#> { get; set; }
-<# }#>
-        }
-<# }}#>
-        #endregion
 
   }
 }
