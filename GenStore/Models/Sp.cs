@@ -1,7 +1,4 @@
-﻿
-using System.Reflection;
-using System.Text;
-using System.Text.RegularExpressions;
+﻿using System.Text;
 
 namespace GenStore.Models
 {
@@ -85,21 +82,32 @@ namespace GenStore.Models
 
         public string ConvertToStandardPropertyNameTypeScript(string cSharpPropertyName)
         {
-            // convert PascalCase to camelCase
-            string[] words = Regex.Split(cSharpPropertyName, @"(?=[A-Z])");
-            string camelCaseName = string.Join("", words.Select((word, index) =>
+            StringBuilder result = new StringBuilder();
+
+            bool capitalizeNext = false;
+
+            foreach (char c in cSharpPropertyName)
             {
-                if (index == 0)
+                if (c == '_')
                 {
-                    return word.ToLower();
+                    result.Append('_');
+                    capitalizeNext = true;
                 }
                 else
                 {
-                    return char.ToLower(word[0]) + word.Substring(1);
+                    if (capitalizeNext)
+                    {
+                        result.Append(char.ToUpper(c));
+                        capitalizeNext = false;
+                    }
+                    else
+                    {
+                        result.Append(char.ToLower(c));
+                    }
                 }
-            }));
+            }
 
-            return camelCaseName;
+            return result.ToString();
         }
 
         public string ConvertCSharpTypeToTypeScript(string csharpType)
@@ -127,7 +135,7 @@ namespace GenStore.Models
                 case "bool":
                     return "boolean";
                 default:
-                    return "any"; 
+                    return "any";
             }
         }
 

@@ -3,7 +3,7 @@
 ///
 
 <# foreach (var sp in SpList) { if (sp.Results.Count > 0) {#>
-export interface <#=sp.Name#>Dto {
+export interface <#=sp.Name#> {
 <# foreach (var r in sp.Results) {#>
    <#=sp.ConvertToStandardPropertyNameTypeScript(r.Name)#>: <#=sp.ConvertCSharpTypeToTypeScript(r.Type)#>;
 <# }#>

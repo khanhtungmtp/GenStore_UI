@@ -247,10 +247,10 @@
             // tabLog
             // 
             tabLog.Controls.Add(richTextBoxLog);
-            tabLog.Location = new Point(4, 32);
+            tabLog.Location = new Point(4, 24);
             tabLog.Name = "tabLog";
             tabLog.Padding = new Padding(3);
-            tabLog.Size = new Size(733, 370);
+            tabLog.Size = new Size(733, 378);
             tabLog.TabIndex = 1;
             tabLog.Text = "Log";
             tabLog.UseVisualStyleBackColor = true;
@@ -277,6 +277,7 @@
             Icon = (Icon)resources.GetObject("$this.Icon");
             Margin = new Padding(5);
             MaximizeBox = false;
+            MinimizeBox = false;
             Name = "MainGenSP";
             StartPosition = FormStartPosition.CenterParent;
             Text = "Gen Store Procedure";
