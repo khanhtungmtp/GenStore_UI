@@ -31,7 +31,7 @@ namespace GenStore
         private const int MAX_LOG_BUFFER_SIZE = 5000;
         // load json
         private IConfigurationRoot configuration;
-        private List<ConnectionStringSettings> connectionStrings;
+        private List<ConnectionStringSettings> listConnectionStrings;
         public MainGenSP()
         {
             InitializeComponent();
@@ -45,31 +45,53 @@ namespace GenStore
             return processes.Length > 1;
         }
 
-        private void LoadConnect()
+        private void LoadConnect(bool isReload = false)
         {
             try
             {
-                // Load configuration from appsettings.json
                 var configBuilder = new ConfigurationBuilder()
-                    .AddJsonFile(Path.Combine(Directory.GetCurrentDirectory(), "appsettings.json"), optional: false, reloadOnChange: true);
-                configuration = configBuilder.Build();
+                    .AddJsonFile(Path.Combine(Directory.GetCurrentDirectory(), "appsettings.json"), optional: false, reloadOnChange: false);
+                var newConfiguration = configBuilder.Build();
 
-                // Initialize the connectionStrings list
-                connectionStrings = new List<ConnectionStringSettings>();
+                listConnectionStrings = new List<ConnectionStringSettings>();
 
-                // Read connection strings from appsettings.json and populate the list
-                var connectionStringsSection = configuration.GetSection("ConnectionStrings");
+                var connectionStringsSection = newConfiguration.GetSection("ConnectionStrings");
                 foreach (var connectionStringSection in connectionStringsSection.GetChildren())
                 {
                     var name = connectionStringSection.Key;
                     var connectionString = connectionStringSection.Value;
-                    connectionStrings.Add(new ConnectionStringSettings { Name = name, ConnectionString = connectionString });
+                    listConnectionStrings.Add(new ConnectionStringSettings { Name = name, ConnectionString = connectionString });
+                }
+
+                configuration = newConfiguration;
+                if (isReload)
+                {
+                    AddLogMessage("Appsetting reloaded successfully.");
+                    // After reloading, populate the ComboBox
+                    comboBoxConnectionStrings.Items.Clear();
+                    comboBoxConnectionStrings.Items.Add("Please choose");
+                    comboBoxConnectionStrings.SelectedIndex = 0;
+                }
+
+
+                if (listConnectionStrings != null && listConnectionStrings.Any())
+                {
+                    foreach (var connectionString in listConnectionStrings)
+                    {
+                        comboBoxConnectionStrings.Items.Add(connectionString.Name);
+                    }
                 }
             }
             catch (Exception ex)
             {
-                AddLogMessage($"Error loading configuration: {ex.Message}");
+                AddLogMessage($"Error loading appsetting: {ex.Message}");
             }
+        }
+
+        private void button1_Click(object sender, EventArgs e)
+        {
+            ClearLog();
+            LoadConnect(true);
         }
 
 
@@ -78,19 +100,19 @@ namespace GenStore
             ClearLog();
             SpList.Clear();
             ExceptionList.Clear();
-            // active tablog
-            tabConnection.SelectedTab = tabLog;
+
             // Get user inputs from textboxes
             string selectedConnectionStringName = comboBoxConnectionStrings.SelectedItem?.ToString();
             if (string.IsNullOrEmpty(selectedConnectionStringName))
             {
+                AddLogMessage("Vui lòng chọn một kết nối.");
                 MessageBox.Show("Vui lòng chọn một kết nối.", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 return;
             }
             // active tablog
             tabConnection.SelectedTab = tabLog;
             string nameConnectionString = "";
-            var selectedConnectionString = connectionStrings?.Find(cs => cs?.Name == selectedConnectionStringName) ?? null;
+            var selectedConnectionString = listConnectionStrings?.Find(cs => cs?.Name == selectedConnectionStringName) ?? null;
             if (selectedConnectionString != null)
             {
                 nameConnectionString = selectedConnectionString.Name;
@@ -116,6 +138,7 @@ namespace GenStore
             // Show the execution time in the MessageBox
             if (SpList.Any())
             {
+                AddLogMessage($"Thời gian xử lý: {seconds}s");
                 MessageBox.Show($"Thời gian xử lý: {seconds}s", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Information);
             }
         }
@@ -205,7 +228,8 @@ namespace GenStore
                 AddLogMessage("ERROR:");
                 if (string.IsNullOrEmpty(connectionString))
                 {
-                    AddLogMessage("Parameter Missing or incorrect: Name connection string");
+                    btnStartGen.Enabled = false;
+                    AddLogMessage("No server found in this connectstring.");
                 }
             }
         }
@@ -434,7 +458,7 @@ namespace GenStore
             }
             if (ExceptionList.Any())
             {
-                AddLogMessage($"{DateTime.Now.ToString("yyyy-MM-dd HH':'mm':'ss")} Da tim thay exception! Vui long check o file GenSP_log.txt in '{P_OutPutPhysicalFolder}'");
+                AddLogMessage($"{DateTime.Now.ToString("yyyy-MM-dd HH':'mm':'ss")} Da tim thay exception! Vui long check o file GenSP_log.txt in {P_OutPutPhysicalFolder}");
                 WriteException();
             }
 
@@ -532,7 +556,7 @@ namespace GenStore
 
         private DataTable Get_StoreProcedure_List()
         {
-            DataTable dtResult = new DataTable();
+            DataTable dtResult = new();
             try
             {
                 using (SqlConnection connection = new SqlConnection(P_ConnectionString))
@@ -558,7 +582,7 @@ namespace GenStore
 
                     sql += " ORDER BY ROUTINE_NAME";
 
-                    SqlDataAdapter adapter = new SqlDataAdapter();
+                    SqlDataAdapter adapter = new();
                     adapter.SelectCommand = new SqlCommand(sql, connection);
                     adapter.Fill(dtResult);
                 }
@@ -575,7 +599,7 @@ namespace GenStore
 
         private DataTable Get_StoreProcedure_Param(string schema, string sp)
         {
-            DataTable dtResult = new DataTable();
+            DataTable dtResult = new();
 
             try
             {
@@ -684,9 +708,9 @@ namespace GenStore
             comboBoxConnectionStrings.SelectedIndex = 0; // Select the default item by default
 
             // Check if connectionStrings is not null and not empty before populating the comboBox
-            if (connectionStrings != null && connectionStrings.Any())
+            if (listConnectionStrings != null && listConnectionStrings.Any())
             {
-                foreach (var connectionString in connectionStrings)
+                foreach (var connectionString in listConnectionStrings)
                 {
                     comboBoxConnectionStrings.Items.Add(connectionString.Name);
                 }

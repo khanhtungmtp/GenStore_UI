@@ -50,6 +50,7 @@
             comboBoxConnectionStrings = new ComboBox();
             tabLog = new TabPage();
             richTextBoxLog = new RichTextBox();
+            reloadSetting = new Button();
             ((System.ComponentModel.ISupportInitialize)pictureBox1).BeginInit();
             tabConnection.SuspendLayout();
             tabMain.SuspendLayout();
@@ -265,15 +266,27 @@
             richTextBoxLog.TabIndex = 0;
             richTextBoxLog.Text = "";
             // 
+            // reloadSetting
+            // 
+            reloadSetting.Location = new Point(633, 126);
+            reloadSetting.Name = "reloadSetting";
+            reloadSetting.Size = new Size(91, 35);
+            reloadSetting.TabIndex = 17;
+            reloadSetting.Text = "Reload";
+            reloadSetting.UseVisualStyleBackColor = true;
+            reloadSetting.Click += button1_Click;
+            // 
             // MainGenSP
             // 
             AutoScaleDimensions = new SizeF(12F, 23F);
             AutoScaleMode = AutoScaleMode.Font;
             ClientSize = new Size(739, 538);
+            Controls.Add(reloadSetting);
             Controls.Add(tabConnection);
             Controls.Add(pictureBox1);
             Controls.Add(label1);
             Font = new Font("Times New Roman", 15.75F, FontStyle.Regular, GraphicsUnit.Point);
+            FormBorderStyle = FormBorderStyle.FixedSingle;
             Icon = (Icon)resources.GetObject("$this.Icon");
             Margin = new Padding(5);
             MaximizeBox = false;
@@ -314,5 +327,6 @@
         private TabPage tabLog;
         private RichTextBox richTextBoxLog;
         private ComboBox comboBoxConnectionStrings;
+        private Button reloadSetting;
     }
 }
