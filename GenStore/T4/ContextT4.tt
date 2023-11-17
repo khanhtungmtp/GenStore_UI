@@ -10,7 +10,7 @@ namespace <#=Namespace#>.<#=SolutionDestinationFolder#>
     public partial class <#=DestinationDbContext#> : <#=SourceDbContext#>
     {
         private readonly DBContext _dbContext;
-<# foreach (var sp in SpList){ if (sp.Results.Count > 0) {#>
+<# foreach (var sp in SpList){ if (sp.Results.Any()) {#>
         public virtual DbSet<<#=sp.Name#>> <#=sp.Name#> { get; set; }
 <# }}#>
 
@@ -28,7 +28,7 @@ namespace <#=Namespace#>.<#=SolutionDestinationFolder#>
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {                                 
             // No key   
-<#    foreach (var sp in SpList){ if (sp.Results.Count > 0){#>
+<#    foreach (var sp in SpList){ if (sp.Results.Any()){#>
             modelBuilder.Entity<<#=sp.Name#>>().HasNoKey().ToView(null);
 <#    }}#>            
             base.OnModelCreating(modelBuilder);

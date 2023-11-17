@@ -9,7 +9,7 @@ namespace GenStore.T4
 
         private string Namespace { get; set; }
         private string SolutionDestinationFolder { get; set; }
-        private string ProgramName { get { return System.AppDomain.CurrentDomain.FriendlyName; } }
+        private static string ProgramName { get { return AppDomain.CurrentDomain.FriendlyName; } }
         /// <summary>
         /// Gets or sets the name of the SpResultElement.
         /// </summary>

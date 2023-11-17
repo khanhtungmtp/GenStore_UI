@@ -42,7 +42,7 @@ namespace GenStore.T4
             this.Write("\r\n///\r\n\r\n");
             
             #line 5 "D:\Projectme\TOOL\GenStore_UI\GenStore\T4\TypeScriptT4.tt"
- foreach (var sp in SpList) { if (sp.Results.Count > 0) {
+ foreach (var sp in SpList) { if (sp.Results.Any()) {
             
             #line default
             #line hidden
@@ -60,21 +60,13 @@ namespace GenStore.T4
             
             #line default
             #line hidden
-            this.Write("   ");
             
             #line 8 "D:\Projectme\TOOL\GenStore_UI\GenStore\T4\TypeScriptT4.tt"
-            this.Write(this.ToStringHelper.ToStringWithCulture(sp.ConvertToStandardPropertyNameTypeScript(r.Name)));
+            this.Write(this.ToStringHelper.ToStringWithCulture(sp.ConvertCSharpPropertyToTypeScript(r.Name, r.Type)));
             
             #line default
             #line hidden
-            this.Write(": ");
-            
-            #line 8 "D:\Projectme\TOOL\GenStore_UI\GenStore\T4\TypeScriptT4.tt"
-            this.Write(this.ToStringHelper.ToStringWithCulture(sp.ConvertCSharpTypeToTypeScript(r.Type)));
-            
-            #line default
-            #line hidden
-            this.Write(";\r\n");
+            this.Write("\r\n");
             
             #line 9 "D:\Projectme\TOOL\GenStore_UI\GenStore\T4\TypeScriptT4.tt"
  }

@@ -199,7 +199,7 @@
             btnStartGen.TabIndex = 15;
             btnStartGen.Text = "Start Gen";
             btnStartGen.UseVisualStyleBackColor = true;
-            btnStartGen.Click += btnStartGen_Click;
+            btnStartGen.Click += BtnStartGen_Click;
             // 
             // tabConnection
             // 
@@ -243,7 +243,7 @@
             comboBoxConnectionStrings.Name = "comboBoxConnectionStrings";
             comboBoxConnectionStrings.Size = new Size(450, 31);
             comboBoxConnectionStrings.TabIndex = 16;
-            comboBoxConnectionStrings.SelectedIndexChanged += comboBoxConnectionStrings_SelectedIndexChanged;
+            comboBoxConnectionStrings.SelectedIndexChanged += ComboBoxConnectionStrings_SelectedIndexChanged;
             // 
             // tabLog
             // 
@@ -274,7 +274,7 @@
             reloadSetting.TabIndex = 17;
             reloadSetting.Text = "Reload";
             reloadSetting.UseVisualStyleBackColor = true;
-            reloadSetting.Click += button1_Click;
+            reloadSetting.Click += Button1_Click;
             // 
             // MainGenSP
             // 

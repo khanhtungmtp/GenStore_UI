@@ -22,94 +22,112 @@ namespace <#=Namespace#>.<#=SolutionDestinationFolder#>
     {
         private readonly DBContext _dbContext;
 
-        // ====================================start services============================================
-        #region xu ly ben services cach 1 dung FromSqlRaw || ExecuteSqlRawAsync
+    // ====================================start services============================================
+    #region xu ly ben services cach 1 dung FromSqlRaw || ExecuteSqlRawAsync
 <# foreach (var sp in SpList){ #>
-        <#=sp.GetMethodDefinition()#>_C1(<# foreach (var p in sp.Params){#><#=(p.Order == "1" ? "" : "," )#><#=(p.isOutput ? "ref " : "" )#><#=p.Type#> <#=p.Param#><#}#>)
-        {
+    <#=sp.GetMethodDefinition()#>_C1(<# foreach (var p in sp.Params){#><#=(p.Order == "1" ? "" : "," )#><#=(p.isOutput ? "ref " : "" )#><#=p.Type#> <#=p.Param#><#}#>)
+    {
 <#if (sp.Params.Count > 1) {#>
-            // Parameters
-            var sqlParameters = new SqlParameter[]
-            {
+        // Parameters
+        var sqlParameters = new SqlParameter[]
+        {
 <# foreach (var p in sp.Params) { #>
-                new SqlParameter("@<#=p.Param#>", <#=p.Param#> ?? (object)DBNull.Value),
+           new("@<#=p.Param#>",<# if(p.Type == "string"){#>!string.IsNullOrWhiteSpace(<#=p.Param#>) ? (object)<#=p.Param#> : DBNull.Value),
+<#} else if(p.Type == "DateTime"){#> <#=p.Param#> != default(DateTime) ? (object)<#=p.Param#> : DBNull.Value),
+<#} else if(p.Type == "decimal"){#>  <#=p.Param#> != default(decimal) ? (object)<#=p.Param#> : DBNull.Value),
+<#} else if(p.Type == "double"){#> <#=p.Param#> != default(double) ? (object)<#=p.Param#> : DBNull.Value),
+<#} else if(p.Type == "int" || p.Type == "int?"){#><#=p.Param#>.HasValue ? (object)<#=p.Param#> : DBNull.Value),
+<#} else {#> <#=p.Param#> != null ? (object)<#=p.Param#> : DBNull.Value),<#}#>
 <# } #>
-            };
+        };
 <# } #>
 <#if (sp.Params.Count == 1) {#>
 <# foreach (var p in sp.Params){ #>
-            SqlParameter sqlParameters = new SqlParameter("@<#=p.Param#>", <#=p.Param#> ?? (object)DBNull.Value);
-<# }#>
+        SqlParameter sqlParameters = new("@<#=p.Param#>",<# if(p.Type == "string"){#> !string.IsNullOrWhiteSpace(<#=p.Param#>) ? (object)<#=p.Param#> : DBNull.Value);
+<#} else if(p.Type == "DateTime"){#> <#=p.Param#> != default(DateTime) ? (object)<#=p.Param#> : DBNull.Value);
+<#} else if(p.Type == "decimal"){#>  <#=p.Param#> != default(decimal) ? (object)<#=p.Param#> : DBNull.Value);
+<#} else if(p.Type == "double"){#> <#=p.Param#> != default(double) ? (object)<#=p.Param#> : DBNull.Value);
+<#} else if(p.Type == "int" || p.Type == "int?"){#><#=p.Param#>.HasValue ? (object)<#=p.Param#> : DBNull.Value);
+<#} else {#> <#=p.Param#> != null ? (object)<#=p.Param#> : DBNull.Value);<#}#>
 <# } #>
-            // Processing 
-            string sqlQuery = $@"EXEC [<#=sp.Schema#>].[<#=sp.Name#>] <# foreach (var p in sp.Params) { #><#=(p.Order == "1" ? "" : ", " )#>@<#=p.Param#><#=(p.isOutput ? " OUTPUT" : "" )#><# } #>";
-<# if (sp.Results.Count > 0) { #>               
-            // Output Data
-            List<<#=sp.Name#>> listData = await _dbContext.<#=sp.Name#>.FromSqlRaw(sqlQuery, sqlParameters).ToListAsync();
+<# } #>
+        // Processing 
+        string sqlQuery = $@"EXEC [<#=sp.Schema#>].[<#=sp.Name#>] <# foreach (var p in sp.Params) { #><#=(p.Order == "1" ? "" : ", " )#>@<#=p.Param#><#=(p.isOutput ? " OUTPUT" : "" )#><# } #>";
+
+<# if (sp.Results.Any()) { #>
+        // Output Data
+        List<<#=sp.Name#>> listData = await _dbContext.<#=sp.Name#>.FromSqlRaw(sqlQuery, sqlParameters).ToListAsync();
 <# } else { #>
-            // Execution
-            await _dbContext.Database.ExecuteSqlRawAsync(sqlQuery, sqlParameters);
+        // Execution
+        await _dbContext.Database.ExecuteSqlRawAsync(sqlQuery, sqlParameters);
 <# } #>
-<# if (sp.Params.Where(x=> x.isOutput).Count() > 0) { #>
-            // Output Params
+<# if (sp.Params.Where(x=> x.isOutput).Any()) { #>
+        // Output Params
 <# foreach (var p in sp.Params.Where(x=> x.isOutput)) { #>
-            <#=p.Param#> = (<#=p.Type#>)p_<#=p.Param#>.Value;
+        <#=p.Param#> = (<#=p.Type#>)<#=p.Param#>.Value;
 <# } #>
 <# } #>
-<# if (sp.Results.Count > 0) { #>
-            // Map using AutoMapper
-            // var listResult = _mapper.Map<List<ClassNameDto>>(listData);
-            // Map using AgileMapper
-            // var listResult = Mapper.Map(listData).ToANew<List<ClassNameDto>>();
-            // return listResult;
-            return listData;
+<# if (sp.Results.Any()) { #>
+        // Map using AutoMapper
+        // var listResult = _mapper.Map<List<ClassNameDto>>(listData);
+        // Map using AgileMapper
+        // var listResult = Mapper.Map(listData).ToANew<List<ClassNameDto>>();
+        // return listResult;
+        return listData;
 <# } #>
-        }
+    }
 <#
 }
 #>
-        #endregion
+    #endregion
 
-        #region xu ly ben services cach 2 dung FromSqlInterpolated || ExecuteSqlInterpolatedAsync
+    #region xu ly ben services cach 2 dung FromSqlInterpolated || ExecuteSqlInterpolatedAsync
 <# foreach (var sp in SpList){ #>
-        <#=sp.GetMethodDefinition()#>_C2(<# foreach (var p in sp.Params){ #><#=(p.Order == "1" ? "" : "," )#><#=(p.isOutput ? "ref " : "" )#><#=p.Type#> <#=p.Param#><#}#>)
-        {
-<#if (sp.Results.Count > 0){#>
-            // Parameters
+    <#=sp.GetMethodDefinition()#>_C2(<# foreach (var p in sp.Params){ #><#=(p.Order == "1" ? "" : "," )#><#=(p.isOutput ? "ref " : "" )#><#=p.Type#> <#=p.Param#><#}#>)
+    {
+<#if (sp.Results.Any()){#>
+        // Parameters
 <# foreach (var p in sp.Params){ #>
-            var p_<#=p.Param#> = <#=p.Param#> ?? (object)DBNull.Value;
+        var p_<#=p.Param#> = <# if(p.Type == "string"){#> !string.IsNullOrWhiteSpace(<#=p.Param#>) ? (object)<#=p.Param#> : DBNull.Value;
+<#  } else if(p.Type == "DateTime"){#> <#=p.Param#> != default(DateTime) ? (object)<#=p.Param#> : DBNull.Value;
+<#  } else if(p.Type == "decimal"){#> <#=p.Param#> != default(decimal) ? (object)<#=p.Param#> : DBNull.Value;
+<#  } else if(p.Type == "double"){#> <#=p.Param#> != default(double) ? (object)<#=p.Param#> : DBNull.Value;
+<#} else if(p.Type == "int" || p.Type == "int?"){#> <#=p.Param#>.HasValue ? (object)<#=p.Param#> : DBNull.Value;
+<#  } else {#> <#=p.Param#>.HasValue ? (object)<#=p.Param#>.Value : DBNull.Value;
+<#  }#>
 <# }#>
 <#}#>
-            // Processing 
-            FormattableString sqlQuery = $@"EXEC [<#=sp.Schema#>].[<#=sp.Name#>] <# foreach (var p in sp.Params){ #><#=(p.Order == "1" ? "" : ", " )#>@<#=p.Param#>={p_<#=p.Param#>}<#=(p.isOutput ? " OUTPUT" : "" )#><#}#>";
-        
-<#if (sp.Results.Count > 0) {#>
-            //Output Data
-            List<<#=sp.Name#>> listData = await _dbContext.<#=sp.Name#>
+        // Processing 
+        FormattableString sqlQuery = $@"EXEC [<#=sp.Schema#>].[<#=sp.Name#>] <# foreach (var p in sp.Params){ #><#=(p.Order == "1" ? "" : ", " )#>@<#=p.Param#>={p_<#=p.Param#>}<#=(p.isOutput ? " OUTPUT" : "" )#><#}#>";
+
+<#if (sp.Results.Any()) {#>
+        // Output Data
+        List<<#=sp.Name#>> listData = await _dbContext.<#=sp.Name#>
             .FromSqlInterpolated(sqlQuery)
             .ToListAsync();
+<#} else {#>
+        // Execution
+        await _dbContext.Database.ExecuteSqlInterpolatedAsync(sqlQuery <# foreach (var p in sp.Params){ #>, p_<#=p.Param#> <#}#>);
 <#}#>
-<#else{#>
-            //Execution
-            await _dbContext.Database.ExecuteSqlInterpolatedAsync(sqlQuery <# foreach (var p in sp.Params){ #>, p_<#=p.Param#> <#}#>);
-<#}#>
-<#if (sp.Params.Where(x=> x.isOutput).Count() > 0) {#>
-            //Output Params
-<# foreach (var p in sp.Params.Where(x=> x.isOutput)){ #>        <#=p.Param#> = (<#=p.Type#>)p_<#=p.Param#>.Value;
-<#}#>
-<#}#>            
-<#if (sp.Results.Count > 0) {#>
-            // Map using AutoMapper
-            // var listResult = _mapper.Map<List<ClassNameDto>>(listData);
-            // Map using AgileMapper
-            // var listResult = Mapper.Map(listData).ToANew<List<ClassNameDto>>();
-            // return listResult;
-            return listData;
-<#}#>
-        }
-<# }#>
-        // ====================================end services============================================
-        #endregion
 
-  }
+<#if (sp.Params.Where(x=> x.isOutput).Any()) {#>
+        // Output Params
+<# foreach (var p in sp.Params.Where(x=> x.isOutput)){ #>
+        <#=p.Param#> = (<#=p.Type#>)<#=p.Param#>.Value;
+<#}#>
+<#}#>
+<#if (sp.Results.Any()) {#>
+        // Map using AutoMapper
+        // var listResult = _mapper.Map<List<ClassNameDto>>(listData);
+        // Map using AgileMapper
+        // var listResult = Mapper.Map(listData).ToANew<List<ClassNameDto>>();
+        // return listResult;
+        return listData;
+<#}#>
+    }
+<# }#>
+    // ====================================end services============================================
+    #endregion
+
+    }
 }

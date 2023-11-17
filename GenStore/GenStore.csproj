@@ -6,13 +6,14 @@
     <Nullable>disable</Nullable>
     <UseWindowsForms>true</UseWindowsForms>
     <ImplicitUsings>enable</ImplicitUsings>
-	  <FileVersion>2.0.0</FileVersion>
+	  <FileVersion>2.0.1</FileVersion>
 	  <Authors>KhanhTungMTP</Authors>
 	  <AssemblyTitle>Gen Stored Procedure Scaffolder for .netcore</AssemblyTitle>
 	  <Description>Gen Stored Procedure Scaffolder for .netcore !!!</Description>
 	  <SelfContained>true</SelfContained>
 	  <ApplicationIcon>icon.ico</ApplicationIcon>
 	  <IncludeNativeLibrariesForSelfExtract>true</IncludeNativeLibrariesForSelfExtract>
+	  <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
   </PropertyGroup>
 
   <ItemGroup>

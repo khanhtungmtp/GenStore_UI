@@ -23,14 +23,20 @@ namespace GenStore
         public string P_OutPutSolutionFolder;
         public string P_OutPutPhysicalFolder;
         public string P_OutPutFilename;
-        public List<Sp> SpList = new List<Sp>();
-        public List<SpException> ExceptionList = new List<SpException>();
+        public List<Sp> SpList = new();
+        public List<SpException> ExceptionList = new();
         // log
-        private readonly StringBuilder logBuilder = new StringBuilder();
-        private object logLock = new object();
+        private readonly StringBuilder logBuilder = new();
+        private readonly object logLock = new();
         private const int MAX_LOG_BUFFER_SIZE = 5000;
         // load json
-        private IConfigurationRoot configuration;
+        private IConfigurationRoot _configuration;
+
+        public MainGenSP(IConfigurationRoot configuration)
+        {
+            _configuration = configuration;
+        }
+
         private List<ConnectionStringSettings> listConnectionStrings;
         public MainGenSP()
         {
@@ -38,7 +44,7 @@ namespace GenStore
             LoadConnect();
         }
 
-        private bool IsAppAlreadyRunning()
+        private static bool IsAppAlreadyRunning()
         {
             Process currentProcess = Process.GetCurrentProcess();
             Process[] processes = Process.GetProcessesByName(currentProcess.ProcessName);
@@ -63,7 +69,7 @@ namespace GenStore
                     listConnectionStrings.Add(new ConnectionStringSettings { Name = name, ConnectionString = connectionString });
                 }
 
-                configuration = newConfiguration;
+                _configuration = newConfiguration;
                 if (isReload)
                 {
                     AddLogMessage("Appsetting reloaded successfully.");
@@ -88,14 +94,13 @@ namespace GenStore
             }
         }
 
-        private void button1_Click(object sender, EventArgs e)
+        private void Button1_Click(object sender, EventArgs e)
         {
             ClearLog();
             LoadConnect(true);
         }
 
-
-        private void btnStartGen_Click(object sender, EventArgs e)
+        private void BtnStartGen_Click(object sender, EventArgs e)
         {
             ClearLog();
             SpList.Clear();
@@ -310,12 +315,12 @@ namespace GenStore
             var dt_SpParam = new DataTable();
             var dt_SpResult = new DataTable();
 
-            AddLogMessage($"{DateTime.Now.ToString("yyyy-MM-dd HH':'mm':'ss")} STEP 1 - QUET STORED PROCEDURE");
+            AddLogMessage($"{DateTime.Now:yyyy-MM-dd HH':'mm':'ss} STEP 1 - QUET STORED PROCEDURE");
 
             dt_SpList = Get_StoreProcedure_List();
 
-            AddLogMessage($"{DateTime.Now.ToString("yyyy-MM-dd HH':'mm':'ss")} STEP 2 - BAT DAU LAY STORED PROCEDURE");
-            AddLogMessage($"{DateTime.Now.ToString("yyyy-MM-dd HH':'mm':'ss")} STEP 2 - Total Stored Procedure: {dt_SpList.Rows.Count}");
+            AddLogMessage($"{DateTime.Now:yyyy-MM-dd HH':'mm':'ss} STEP 2 - BAT DAU LAY STORED PROCEDURE");
+            AddLogMessage($"{DateTime.Now:yyyy-MM-dd HH':'mm':'ss} STEP 2 - Total Stored Procedure: {dt_SpList.Rows.Count}");
 
             int i = 1;
             string _schema = "";
@@ -329,7 +334,7 @@ namespace GenStore
                 dt_SpParam = Get_StoreProcedure_Param(_schema, _sp);
                 dt_SpResult = Get_StoreProcedure_Result(_schema, _sp);
 
-                AddLogMessage($"{DateTime.Now.ToString("yyyy-MM-dd HH':'mm':'ss")} STEP 2 - {i} / {dt_SpList.Rows.Count} ==> \"{r["ROUTINE_NAME"]}\"");
+                AddLogMessage($"{DateTime.Now:yyyy-MM-dd HH':'mm':'ss} STEP 2 - {i} / {dt_SpList.Rows.Count} ==> \"{r["ROUTINE_NAME"]}\"");
                 var pList = new List<SpParam>();
                 foreach (DataRow par in dt_SpParam.Rows)
                 {
@@ -399,21 +404,8 @@ namespace GenStore
 
                 i++;
             }
-            // xu ly name khi co ky tu dac biet
-            char[] specialChars = new char[] { '.', ' ', '$', '-' };
-            bool containsSpecialChars = SpList.Any(item => item.Results.Any(x => ContainsAnySpecialChars(x.Name)));
-            if (containsSpecialChars)
-            {
-                foreach (var item in SpList)
-                {
-                    foreach (var result in item.Results)
-                    {
-                        result.Name = RemoveAndJoin(result.Name);
-                    }
-                }
-            }
 
-            AddLogMessage($"{DateTime.Now.ToString("yyyy-MM-dd HH':'mm':'ss")} XONG");
+            AddLogMessage($"{DateTime.Now:yyyy-MM-dd HH':'mm':'ss} XONG");
 
             string folderModel = Path.Combine(Directory.GetCurrentDirectory(), "Models");
             CreateDirectoryIfNotExists(folderModel, "Error creating folder Model: ");
@@ -431,34 +423,34 @@ namespace GenStore
                 if (storedProcedure.Results.Any())
                 {
                     // handle context
-                    ContextT4 contextT4Processed = new ContextT4(SpList, P_NameSpace, "Data", P_ContextSource);
+                    ContextT4 contextT4Processed = new(SpList, P_NameSpace, "Data", P_ContextSource);
                     string outputContextPath = Path.Combine(folderContext, $"DBContext.cs");
                     File.WriteAllText(outputContextPath, contextT4Processed.TransformText());
 
                     // handle services
-                    GenSPT4 genSPT4Processed = new GenSPT4(new List<Sp> { storedProcedure }, P_NameSpace, "_Services.Services", P_ContextSource);
+                    GenSPT4 genSPT4Processed = new(new List<Sp> { storedProcedure }, P_NameSpace, "_Services.Services", P_ContextSource);
                     string outputServicesPath = Path.Combine(folderServices, $"{storedProcedure.Name}.cs");
                     File.WriteAllText(outputServicesPath, genSPT4Processed.TransformText());
 
                     // handle model
-                    ModelT4 genModelT4Processed = new ModelT4(new List<Sp> { storedProcedure }, P_NameSpace, P_OutPutSolutionFolder);
+                    ModelT4 genModelT4Processed = new(new List<Sp> { storedProcedure }, P_NameSpace, P_OutPutSolutionFolder);
                     string outputModelPath = Path.Combine(folderModel, $"{storedProcedure.Name}.cs");
                     File.WriteAllText(outputModelPath, genModelT4Processed.TransformText());
 
                     // handle dto
-                    DtoT4 genDtoT4Processed = new DtoT4(new List<Sp> { storedProcedure }, P_NameSpace, "DTOs");
+                    DtoT4 genDtoT4Processed = new(new List<Sp> { storedProcedure }, P_NameSpace, "DTOs");
                     string outputDtoPath = Path.Combine(folderDto, $"{storedProcedure.Name}.cs");
                     File.WriteAllText(outputDtoPath, genDtoT4Processed.TransformText());
 
                     // handle typescript
-                    TypeScriptT4 genTypeScriptT4Processed = new TypeScriptT4(new List<Sp> { storedProcedure });
+                    TypeScriptT4 genTypeScriptT4Processed = new(new List<Sp> { storedProcedure });
                     string outputTypescriptPath = Path.Combine(folderTypeScipt, $"{storedProcedure.Name.ToLower()}.ts");
                     File.WriteAllText(outputTypescriptPath, genTypeScriptT4Processed.TransformText());
                 }
             }
             if (ExceptionList.Any())
             {
-                AddLogMessage($"{DateTime.Now.ToString("yyyy-MM-dd HH':'mm':'ss")} Da tim thay exception! Vui long check o file GenSP_log.txt in {P_OutPutPhysicalFolder}");
+                AddLogMessage($"{DateTime.Now:yyyy-MM-dd HH':'mm':'ss} Da tim thay exception! Vui long check o file GenSP_log.txt in {P_OutPutPhysicalFolder}");
                 WriteException();
             }
 
@@ -479,26 +471,7 @@ namespace GenStore
             }
         }
 
-        static bool ContainsAnySpecialChars(string input)
-        {
-            char[] specialChars = new char[] { '.', ' ', '$', '-' };
-            return input.Any(c => specialChars.Contains(c));
-        }
-
-        private string RemoveAndJoin(string input)
-        {
-            string[] words = input.Split(new char[] { '.', ' ', '$', '-' }, StringSplitOptions.RemoveEmptyEntries);
-
-            StringBuilder result = new StringBuilder();
-            foreach (string word in words)
-            {
-                result.Append(word);
-            }
-
-            return result.ToString();
-        }
-
-        private string SP_GetType(string type, bool isNullable)
+        private static string SP_GetType(string type, bool isNullable)
         {
             type = type.ToLower().Trim();
 
@@ -525,7 +498,7 @@ namespace GenStore
                 throw new UnknownDBTypeException(type);
         }
 
-        private string SP_GetDbType(string type)
+        private static string SP_GetDbType(string type)
         {
             type = type.ToLower().Trim();
 
@@ -559,7 +532,7 @@ namespace GenStore
             DataTable dtResult = new();
             try
             {
-                using (SqlConnection connection = new SqlConnection(P_ConnectionString))
+                using (SqlConnection connection = new(P_ConnectionString))
                 {
                     string sql = @"
                                 SELECT * 
@@ -603,7 +576,7 @@ namespace GenStore
 
             try
             {
-                using (SqlConnection connection = new SqlConnection(P_ConnectionString))
+                using (SqlConnection connection = new(P_ConnectionString))
                 {
                     string sql = $@"
                                 SELECT  
@@ -624,8 +597,10 @@ namespace GenStore
                                   ORDER BY parameter_id
                                 ";
 
-                    SqlDataAdapter adapter = new SqlDataAdapter();
-                    adapter.SelectCommand = new SqlCommand(sql, connection);
+                    SqlDataAdapter adapter = new()
+                    {
+                        SelectCommand = new SqlCommand(sql, connection)
+                    };
                     adapter.Fill(dtResult);
                 }
 
@@ -640,7 +615,7 @@ namespace GenStore
 
         private DataTable Get_StoreProcedure_Result(string schema, string sp)
         {
-            DataTable dtResult = new DataTable();
+            DataTable dtResult = new();
 
             try
             {
@@ -648,8 +623,10 @@ namespace GenStore
                 {
                     string sql = $@"exec sp_describe_first_result_set N'{schema}.{sp}'";
 
-                    SqlDataAdapter adapter = new SqlDataAdapter();
-                    adapter.SelectCommand = new SqlCommand(sql, connection);
+                    SqlDataAdapter adapter = new()
+                    {
+                        SelectCommand = new SqlCommand(sql, connection)
+                    };
                     adapter.Fill(dtResult);
                 }
 
@@ -664,7 +641,7 @@ namespace GenStore
 
         private void WriteException()
         {
-            StringBuilder sb = new StringBuilder();
+            StringBuilder sb = new();
 
             int i = 1;
             try
@@ -678,7 +655,7 @@ namespace GenStore
             }
             catch (Exception e)
             {
-                AddLogMessage($"{DateTime.Now.ToString("yyyy-MM-dd HH':'mm':'ss")} ERROR!!! --> {e.Message}");
+                AddLogMessage($"{DateTime.Now:yyyy-MM-dd HH':'mm':'ss} ERROR!!! --> {e.Message}");
             }
         }
 
@@ -765,8 +742,6 @@ namespace GenStore
             }
         }
 
-        // Override the FormClosing event to prevent the form from closing when the "OK" button in the MessageBox is clicked
-
         private void ClearLog()
         {
             lock (logLock)
@@ -776,7 +751,7 @@ namespace GenStore
             }
         }
 
-        private void comboBoxConnectionStrings_SelectedIndexChanged(object sender, EventArgs e)
+        private void ComboBoxConnectionStrings_SelectedIndexChanged(object sender, EventArgs e)
         {
             // Check if the selected item is not the default item
             if (comboBoxConnectionStrings.SelectedIndex > 0)
@@ -789,10 +764,10 @@ namespace GenStore
             }
         }
     }
-    public class NativeMethods
+    public partial class NativeMethods
     {
-        [DllImport("user32.dll")]
+        [LibraryImport("user32.dll")]
         [return: MarshalAs(UnmanagedType.Bool)]
-        public static extern bool SetForegroundWindow(IntPtr hWnd);
+        public static partial bool SetForegroundWindow(IntPtr hWnd);
     }
 }
