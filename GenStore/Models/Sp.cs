@@ -1,4 +1,5 @@
 ﻿using System.Text;
+using System.Text.RegularExpressions;
 
 namespace GenStore.Models
 {
@@ -39,20 +40,6 @@ namespace GenStore.Models
             }
         }
 
-        public string ConvertToStandardPropertyName(string inputName)
-        {
-            string[] words = inputName.Split('_');
-            var sb = new StringBuilder();
-
-            foreach (string word in words)
-            {
-                sb.Append(sb.Length > 0 ? " " : "");
-                sb.Append(char.ToUpper(word[0]) + word.Substring(1).ToLower());
-            }
-
-            return sb.ToString().Replace(" ", "_");
-        }
-
         public bool ContainsAnySpecialChars(string input)
         {
             char[] specialChars = new char[] { '.', ' ', '$', '-', '+', '#' };
@@ -71,6 +58,18 @@ namespace GenStore.Models
             }
 
             return result.ToString();
+        }
+
+        public string ConvertToDecimalString(string input)
+        {
+            // Sử dụng biểu thức chính quy để tìm và thay thế "numeric" bằng "decimal"
+            string pattern = @"^numeric\((\d+,\d+)\)$";
+            string replacement = "decimal($1)";
+
+            string result = Regex.Replace(input, pattern, replacement);
+
+            // Nếu không có sự thay thế, trả về chuỗi nguyên gốc
+            return result == input ? input : result;
         }
 
         #region area typescript handle

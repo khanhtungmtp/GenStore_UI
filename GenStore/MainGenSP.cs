@@ -619,7 +619,7 @@ namespace GenStore
 
             try
             {
-                using (SqlConnection connection = new SqlConnection(P_ConnectionString))
+                using (SqlConnection connection = new(P_ConnectionString))
                 {
                     string sql = $@"exec sp_describe_first_result_set N'{schema}.{sp}'";
 
