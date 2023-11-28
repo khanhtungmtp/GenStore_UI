@@ -480,8 +480,10 @@ namespace GenStore
                 return "int" + (isNullable ? "?" : "");
             else if (type == "uniqueidentifier")
                 return "Guid" + (isNullable ? "?" : "");
-            else if (type == "money" || type.Contains("float") || type.Contains("numeric") || type.Contains("decimal"))
+            else if (type == "money" || type.Contains("numeric") || type.Contains("decimal"))
                 return "decimal" + (isNullable ? "?" : "");
+            else if (type.Contains("float"))
+                return "double" + (isNullable ? "?" : "");
             else if (type == "text" || type.IndexOf("nvarchar") > -1 || type.IndexOf("varchar") > -1 || type.IndexOf("char") > -1)
                 return "string";
             else if (type.Contains("table type"))

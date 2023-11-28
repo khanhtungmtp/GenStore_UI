@@ -21,103 +21,103 @@ namespace <#=Namespace#>.<#=SolutionDestinationFolder#>
     {
         private readonly DBContext _dbContext;
 
-    // ====================================start services============================================
-    #region xu ly ben services cach 1 dung FromSqlRaw || ExecuteSqlRawAsync
-<# foreach (var sp in SpList){ #>
-    <#=sp.GetMethodDefinition()#>_C1(<# foreach (var p in sp.Params){#><#=(p.Order == "1" ? "" : "," )#><#=(p.isOutput ? "ref " : "" )#><#=p.Type#> <#=p.Param#><#}#>)
-    {
-<#if (sp.Params.Count > 1) {#>
-        // Parameters
-        var sqlParameters = new SqlParameter[]
+        // ====================================start services============================================
+        #region xu ly ben services cach 1 dung FromSqlRaw || ExecuteSqlRawAsync
+        <# foreach (var sp in SpList){ #>
+        <#=sp.GetMethodDefinition()#>_C1(<# foreach (var p in sp.Params){#><#=(p.Order == "1" ? "" : "," )#><#=(p.isOutput ? "ref " : "" )#><#=p.Type#> <#=p.Param#><#}#>)
         {
-<# foreach (var p in sp.Params) { #>
-           new("@<#=p.Param#>", <# if(p.Type == "string"){#>!string.IsNullOrWhiteSpace(<#=p.Param#>) ? <#=p.Param#> : (object)DBNull.Value),
-<#} else if (p.Type == "decimal" || p.Type == "decimal?" || p.Type == "double" || p.Type == "double?" || p.Type == "int" || p.Type == "int?") {#><#=p.Param#>.HasValue ? <#=p.Param#> : (object)DBNull.Value),
-<#} else {#> <#=p.Param#> != default(<#=p.Type#>) ? <#=p.Param#> : (object)DBNull.Value),
-<# } } #>
-        };
-<# } #>
-<#if (sp.Params.Count == 1) {#>
-<# foreach (var p in sp.Params){ #>
-        SqlParameter sqlParameters = new("@<#=p.Param#>",<# if(p.Type == "string"){#> !string.IsNullOrWhiteSpace(<#=p.Param#>) ? (object)<#=p.Param#> : (object)DBNull.Value);
-<#} else if (p.Type == "decimal" || p.Type == "decimal?" || p.Type == "double" || p.Type == "double?" || p.Type == "int" || p.Type == "int?") {#><#=p.Param#>.HasValue ? (object)<#=p.Param#> : (object)DBNull.Value);
-<#} else {#> <#=p.Param#> != default(<#=p.Type#>) ? <#=p.Param#> : (object)DBNull.Value);\n<#}#>
-<# } #>
-<# } #>
-        // Processing 
-        string sqlQuery = $@"EXEC [<#=sp.Schema#>].[<#=sp.Name#>] <# foreach (var p in sp.Params) { #><#=(p.Order == "1" ? "" : ", " )#>@<#=p.Param#><#=(p.isOutput ? " OUTPUT" : "" )#><# } #>";
+        <#if (sp.Params.Count > 1) {#>
+                // Parameters
+                var sqlParameters = new SqlParameter[]
+                {
+        <# foreach (var p in sp.Params) { #>
+                new("@<#=p.Param#>", <# if(p.Type == "string"){#>!string.IsNullOrWhiteSpace(<#=p.Param#>) ? <#=p.Param#> : (object)DBNull.Value),
+        <#} else if (p.Type == "decimal" || p.Type == "decimal?" || p.Type == "double" || p.Type == "double?" || p.Type == "int" || p.Type == "int?") {#><#=p.Param#>.HasValue ? <#=p.Param#> : (object)DBNull.Value),
+        <#} else {#> <#=p.Param#> != default(<#=p.Type#>) ? <#=p.Param#> : (object)DBNull.Value),
+        <# } } #>
+                };
+        <# } #>
+        <#if (sp.Params.Count == 1) {#>
+        <# foreach (var p in sp.Params){ #>
+                SqlParameter sqlParameters = new("@<#=p.Param#>",<# if(p.Type == "string"){#> !string.IsNullOrWhiteSpace(<#=p.Param#>) ? (object)<#=p.Param#> : (object)DBNull.Value);
+        <#} else if (p.Type == "decimal" || p.Type == "decimal?" || p.Type == "double" || p.Type == "double?" || p.Type == "int" || p.Type == "int?") {#><#=p.Param#>.HasValue ? (object)<#=p.Param#> : (object)DBNull.Value);
+        <#} else {#> <#=p.Param#> != default(<#=p.Type#>) ? <#=p.Param#> : (object)DBNull.Value);\n<#}#>
+        <# } #>
+        <# } #>
+                // Processing 
+                string sqlQuery = $@"EXEC [<#=sp.Schema#>].[<#=sp.Name#>] <# foreach (var p in sp.Params) { #><#=(p.Order == "1" ? "" : ", " )#>@<#=p.Param#><#=(p.isOutput ? " OUTPUT" : "" )#><# } #>";
 
-<# if (sp.Results.Any()) { #>
-        // Output Data
-        List<<#=sp.Name#>> listData = await _dbContext.<#=sp.Name#>.FromSqlRaw(sqlQuery, sqlParameters).ToListAsync();
-<# } else { #>
-        // Execution
-        await _dbContext.Database.ExecuteSqlRawAsync(sqlQuery, sqlParameters);
-<# } #>
-<# if (sp.Params.Where(x=> x.isOutput).Any()) { #>
-        // Output Params
-<# foreach (var p in sp.Params.Where(x=> x.isOutput)) { #>
-        <#=p.Param#> = (<#=p.Type#>)<#=p.Param#>.Value;
-<# } #>
-<# } #>
-<# if (sp.Results.Any()) { #>
-        // Map using AutoMapper
-        // var listResult = _mapper.Map<List<ClassNameDto>>(listData);
-        // Map using AgileMapper
-        // var listResult = Mapper.Map(listData).ToANew<List<ClassNameDto>>();
-        // return listResult;
-        return listData;
-<# } #>
-    }
-<#
-}
-#>
-    #endregion
+        <# if (sp.Results.Any()) { #>
+                // Output Data
+                List<<#=sp.Name#>> listData = await _dbContext.<#=sp.Name#>.FromSqlRaw(sqlQuery, sqlParameters).ToListAsync();
+        <# } else { #>
+                // Execution
+                await _dbContext.Database.ExecuteSqlRawAsync(sqlQuery, sqlParameters);
+        <# } #>
+        <# if (sp.Params.Where(x=> x.isOutput).Any()) { #>
+                // Output Params
+        <# foreach (var p in sp.Params.Where(x=> x.isOutput)) { #>
+                <#=p.Param#> = (<#=p.Type#>)<#=p.Param#>.Value;
+        <# } #>
+        <# } #>
+        <# if (sp.Results.Any()) { #>
+                // Map using AutoMapper
+                // var listResult = _mapper.Map<List<ClassNameDto>>(listData);
+                // Map using AgileMapper
+                // var listResult = Mapper.Map(listData).ToANew<List<ClassNameDto>>();
+                // return listResult;
+                return listData;
+        <# } #>
+        }
+        <#
+        }
+        #>
+        #endregion
 
-    #region xu ly ben services cach 2 dung FromSqlInterpolated || ExecuteSqlInterpolatedAsync
-<# foreach (var sp in SpList){ #>
-    <#=sp.GetMethodDefinition()#>_C2(<# foreach (var p in sp.Params){ #><#=(p.Order == "1" ? "" : "," )#><#=(p.isOutput ? "ref " : "" )#><#=p.Type#> <#=p.Param#><#}#>)
-    {
-<#if (sp.Results.Any()){#>
-        // Parameters
-<# foreach (var p in sp.Params){ #>
-        var p_<#=p.Param#> = <# if(p.Type == "string"){#> !string.IsNullOrWhiteSpace(<#=p.Param#>) ? <#=p.Param#> : (object)DBNull.Value;
-<#}  else if (p.Type == "decimal" || p.Type == "decimal?" || p.Type == "double" || p.Type == "double?" || p.Type == "int" || p.Type == "int?") {#> <#=p.Param#>.HasValue ? <#=p.Param#> : (object)DBNull.Value;
-<#  } else {#> <#=p.Param#> != default(<#=p.Type#>) ? <#=p.Param#> : (object)DBNull.Value;
-<#  }#>
-<# }#>
-<#}#>
-        // Processing 
-        FormattableString sqlQuery = $@"EXEC [<#=sp.Schema#>].[<#=sp.Name#>] <# foreach (var p in sp.Params){ #><#=(p.Order == "1" ? "" : ", " )#>@<#=p.Param#>={p_<#=p.Param#>}<#=(p.isOutput ? " OUTPUT" : "" )#><#}#>";
+        #region xu ly ben services cach 2 dung FromSqlInterpolated || ExecuteSqlInterpolatedAsync
+        <# foreach (var sp in SpList){ #>
+        <#=sp.GetMethodDefinition()#>_C2(<# foreach (var p in sp.Params){ #><#=(p.Order == "1" ? "" : "," )#><#=(p.isOutput ? "ref " : "" )#><#=p.Type#> <#=p.Param#><#}#>)
+        {
+        <#if (sp.Results.Any()){#>
+                // Parameters
+        <# foreach (var p in sp.Params){ #>
+                var p_<#=p.Param#> = <# if(p.Type == "string"){#> !string.IsNullOrWhiteSpace(<#=p.Param#>) ? <#=p.Param#> : (object)DBNull.Value;
+        <#}  else if (p.Type == "decimal" || p.Type == "decimal?" || p.Type == "double" || p.Type == "double?" || p.Type == "int" || p.Type == "int?") {#> <#=p.Param#>.HasValue ? <#=p.Param#> : (object)DBNull.Value;
+        <#  } else {#> <#=p.Param#> != default(<#=p.Type#>) ? <#=p.Param#> : (object)DBNull.Value;
+        <#  }#>
+        <# }#>
+        <#}#>
+                // Processing 
+                FormattableString sqlQuery = $@"EXEC [<#=sp.Schema#>].[<#=sp.Name#>] <# foreach (var p in sp.Params){ #><#=(p.Order == "1" ? "" : ", " )#>@<#=p.Param#>={p_<#=p.Param#>}<#=(p.isOutput ? " OUTPUT" : "" )#><#}#>";
 
-<#if (sp.Results.Any()) {#>
-        // Output Data
-        List<<#=sp.Name#>> listData = await _dbContext.<#=sp.Name#>
-            .FromSqlInterpolated(sqlQuery)
-            .ToListAsync();
-<#} else {#>
-        // Execution
-        await _dbContext.Database.ExecuteSqlInterpolatedAsync(sqlQuery <# foreach (var p in sp.Params){ #>, p_<#=p.Param#> <#}#>);
-<#}#>
+        <#if (sp.Results.Any()) {#>
+                // Output Data
+                List<<#=sp.Name#>> listData = await _dbContext.<#=sp.Name#>
+                .FromSqlInterpolated(sqlQuery)
+                .ToListAsync();
+        <#} else {#>
+                // Execution
+                await _dbContext.Database.ExecuteSqlInterpolatedAsync(sqlQuery <# foreach (var p in sp.Params){ #>, p_<#=p.Param#> <#}#>);
+        <#}#>
 
-<#if (sp.Params.Where(x=> x.isOutput).Any()) {#>
-        // Output Params
-<# foreach (var p in sp.Params.Where(x=> x.isOutput)){ #>
-        <#=p.Param#> = (<#=p.Type#>)<#=p.Param#>.Value;
-<#}#>
-<#}#>
-<#if (sp.Results.Any()) {#>
-        // Map using AutoMapper
-        // var listResult = _mapper.Map<List<ClassNameDto>>(listData);
-        // Map using AgileMapper
-        // var listResult = Mapper.Map(listData).ToANew<List<ClassNameDto>>();
-        // return listResult;
-        return listData;
-<#}#>
-    }
-<# }#>
-    #endregion
-    // ====================================end services============================================
+        <#if (sp.Params.Where(x=> x.isOutput).Any()) {#>
+                // Output Params
+        <# foreach (var p in sp.Params.Where(x=> x.isOutput)){ #>
+                <#=p.Param#> = (<#=p.Type#>)<#=p.Param#>.Value;
+        <#}#>
+        <#}#>
+        <#if (sp.Results.Any()) {#>
+                // Map using AutoMapper
+                // var listResult = _mapper.Map<List<ClassNameDto>>(listData);
+                // Map using AgileMapper
+                // var listResult = Mapper.Map(listData).ToANew<List<ClassNameDto>>();
+                // return listResult;
+                return listData;
+        <#}#>
+        }
+        <# }#>
+        #endregion
+        // ====================================end services============================================
 
     }
 }
